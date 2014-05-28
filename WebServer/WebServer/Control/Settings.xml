@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Settings>
+  <Webserver port="" />
+  <ControlServer port="" />
+  <WebRoot path="" />
+  <DefaultPage>
+    <File name="index.html" />
+    <File name="index.htm" />
+  </DefaultPage>
+  <DirectoryBrowsing value="" />
+</Settings>
