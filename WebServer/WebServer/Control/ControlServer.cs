@@ -31,7 +31,7 @@ namespace WebServer.Control
                 if (socket.Connected)
                 {
                     Console.WriteLine(socket.RemoteEndPoint);
-                    socket.SendFile(@"Web\index.html",null, null, TransmitFileOptions.Disconnect);
+                    socket.SendFile(@"Control\adminForm.html", null, null, TransmitFileOptions.Disconnect);
                     socket.Close();
                 }
             }
