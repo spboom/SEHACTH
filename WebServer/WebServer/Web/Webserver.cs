@@ -19,11 +19,11 @@ namespace WebServer.Web
 
             server = new TcpListener(ip, port);
             server.Start();
-            Thread thread = new Thread(new ThreadStart(Test));
+            Thread thread = new Thread(new ThreadStart(Print));
             thread.Start();
         }
 
-        private void Test()
+        private void Print()
         {
             while (true)
             {
