@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="Web\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Control\adminForm.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

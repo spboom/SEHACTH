@@ -13,6 +13,7 @@ namespace WebServer
         static void Main(string[] args)
         {
             new ControlServer(8081);
+            new Web.WebServer(8080);
             Console.Read();
         }
     }
