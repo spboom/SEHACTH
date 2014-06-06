@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Settings>
-  <Webserver port="" />
-  <ControlServer port="" />
+  <WebServer port="8080" />
+  <ControlServer port="8081" />
   <WebRoot path="" />
   <DefaultPage>
     <File name="index.html" />
     <File name="index.htm" />
   </DefaultPage>
-  <DirectoryBrowsing value="" />
+  <DirectoryBrowsing value="false" />
 </Settings>
