@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -50,10 +51,11 @@ namespace Server.Logger
 
         public void run()
         {
+            StreamWriter sw = new StreamWriter(@"Logger/log.txt");
             while (true)
             {
-                //todo write to log file
-                Console.WriteLine(read());
+                sw.WriteLine(read());
+                sw.Flush();
             }
         }
 

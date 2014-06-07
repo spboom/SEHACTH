@@ -55,11 +55,11 @@ namespace Server.Web
 
             server = new TcpListener(ip, port);
             server.Start();
-            Thread thread = new Thread(new ThreadStart(Print));
+            Thread thread = new Thread(new ThreadStart(run));
             thread.Start();
         }
 
-        private void Print()
+        private void run()
         {
             while (true)
             {
@@ -67,7 +67,7 @@ namespace Server.Web
                 if (socket.Connected)
                 {
                     WebRequests.WaitOne();
-                    new WebRequest(socket);
+                    new WebServerRequest(socket);
 
                 }
             }

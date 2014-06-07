@@ -1,0 +1,2 @@
+﻿This is the log file
+timestamp : remote ip -> url : request duration in ms

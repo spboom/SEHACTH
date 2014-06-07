@@ -6,15 +6,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Server.Logger;
+using Server.Web;
 
-namespace Server.Web
+namespace Server
 {
-    class WebRequest
+    abstract class WebRequest
     {
 
-        private Socket Socket { get; set; }
+        protected Socket Socket { get; set; }
 
-        public LogItem LogItem { get; set; }
+        private LogItem LogItem { get; set; }
 
 
         public WebRequest(Socket socket)
@@ -40,15 +41,12 @@ namespace Server.Web
                 switch (sBufferArray[0])
                 {
                     case "POST":
-                        Console.WriteLine(sBufferArray[0] + "request");
-                        sendFile(sBufferArray);
+                        POST(sBufferArray);
                         break;
                     case "GET":
-                        Console.WriteLine(sBufferArray[0] + "request");
-                        sendFile(sBufferArray);
+                        GET(sBufferArray);
                         break;
                     default:
-                        Console.WriteLine(sBufferArray[0] + "request (not supported)");
                         sendError("400 Bad Request");
                         break;
                 }
@@ -61,7 +59,17 @@ namespace Server.Web
             }
         }
 
-        private void sendFile(string[] sBufferArray)
+        protected void POST(string[] sBufferArray)
+        {
+            sendFile(sBufferArray);
+        }
+        protected virtual void GET(string[] sBufferArray)
+        {
+            sendFile(sBufferArray);
+        }
+
+
+        public virtual void sendFile(string[] sBufferArray)
         {
             String filePath = getFile(sBufferArray[1]);
 
@@ -84,7 +92,7 @@ namespace Server.Web
             { }
         }
 
-        private void sendError(string message)
+        protected void sendError(string message)
         {
             string html = @"<html><head><title>" + message + @"</title></head><body><h1>" + message + @"</h1></body></html>";
             byte[] messageByteArray = Encoding.ASCII.GetBytes(html);
@@ -92,22 +100,7 @@ namespace Server.Web
             Socket.Send(messageByteArray);
         }
 
-        private string getFile(string path)
-        {
-            if (path == "/")
-            {
-                foreach (string defaultPage in WebServer.DefaultPages)
-                {
-                    FileInfo info = new FileInfo(WebServer.WebRoot + "/" + defaultPage);
-                    if (info.Exists)
-                    {
-                        path = "/" + defaultPage;
-                        break;
-                    }
-                }
-            }
-            return WebServer.WebRoot + path;
-        }
+        public abstract string getFile(string path);
 
         public void SendHeader(int iTotBytes, string sStatusCode)
         {
