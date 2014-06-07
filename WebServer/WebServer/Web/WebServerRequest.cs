@@ -47,7 +47,7 @@ namespace Server.Web
         {
             string path = getFile(sBufferArray[1]);
             bool isDir = Directory.Exists(path);
-            if (isDir && WebServer.DirBrowsing)
+            if (isDir && Server.DirBrowsing)
             {
                 sendFolder(path);
             }
@@ -58,9 +58,24 @@ namespace Server.Web
             sendError("404 Not Found");
         }
 
-        private void sendFolder(string sBufferArray)
+        private void sendFolder(string path)
         {
-            throw new NotImplementedException();
+            string head, body, html, pathFromRoot = path.Substring(Server.WebRoot.Length);
+            if(pathFromRoot.Equals("/"))
+            {
+                pathFromRoot = "";
+            }
+            head = @"<head><title>" + pathFromRoot + @"</title></head>";
+            body = @"<body><lu>";
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            FileSystemInfo[] fileSystemInfos = dirInfo.EnumerateFileSystemInfos().ToArray();
+            foreach (FileSystemInfo info in fileSystemInfos)
+            {
+                body += @"<li><a href='" + pathFromRoot + "/" + info.Name + @"'>" + info.Name + @"</a></li>";
+            }
+            body += @"</lu></body>";
+            html = @"<html>" + head + body + @"</html>";
+            sendString(html, "200 OK");
         }
     }
 }

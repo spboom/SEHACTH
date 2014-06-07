@@ -46,7 +46,7 @@ namespace Server
 
         public string WebRoot { get; protected set; }
 
-        public static bool DirBrowsing { get; private set; }
+        public bool DirBrowsing { get; private set; }
 
         public string[] DefaultPages { get; private set; }
 

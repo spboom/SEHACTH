@@ -107,7 +107,7 @@ namespace Server
 
         public virtual string getFile(string path)
         {
-            if (path == "/")
+            if (path == "/" && !Server.DirBrowsing)
             {
                 foreach (string defaultPage in Server.DefaultPages)
                 {

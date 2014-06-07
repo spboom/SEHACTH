@@ -7,5 +7,5 @@
     <File name="index.html" />
     <File name="index.htm" />
   </DefaultPage>
-  <DirectoryBrowsing value="false" />
+  <DirectoryBrowsing value="true" />
 </Settings>

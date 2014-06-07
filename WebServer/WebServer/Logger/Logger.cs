@@ -72,7 +72,7 @@ namespace Server.Logger
             {
                 while (!sr.EndOfStream)
                 {
-                    fileContent += sr.ReadLine() + "\n";
+                    fileContent = sr.ReadLine() + "\n" + fileContent;
                 }
             }
             return fileContent;
