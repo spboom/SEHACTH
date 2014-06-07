@@ -11,8 +11,8 @@ namespace Server.Web
 {
     class WebServerRequest : WebRequest
     {
-        public WebServerRequest(Socket socket)
-            : base(socket)
+        public WebServerRequest(Socket socket, WebServer server)
+            : base(socket, server)
         { }
 
         public override void sendFile(string[] sBufferArray)
@@ -38,7 +38,7 @@ namespace Server.Web
             { }
         }
 
-        private override void GET(string[] sBufferArray)
+        protected override void GET(string[] sBufferArray)
         {
             send(sBufferArray);
         }
@@ -55,24 +55,7 @@ namespace Server.Web
             {
                 sendFile(sBufferArray);
             }
-                sendError("404 Not Found");
-        }
-
-        public override string getFile(string path)
-        {
-            if (path == "/")
-            {
-                foreach (string defaultPage in WebServer.DefaultPages)
-                {
-                    FileInfo info = new FileInfo(WebServer.WebRoot + "/" + defaultPage);
-                    if (info.Exists)
-                    {
-                        path = "/" + defaultPage;
-                        break;
-                    }
-                }
-            }
-            return WebServer.WebRoot + path;
+            sendError("404 Not Found");
         }
 
         private void sendFolder(string sBufferArray)

@@ -15,17 +15,17 @@ namespace Server
 
         protected Socket Socket { get; set; }
 
-        private LogItem LogItem { get; set; }
+        protected LogItem LogItem { get; set; }
 
+        protected Server Server { get; set; }
 
-        public WebRequest(Socket socket)
+        public WebRequest(Socket socket, Server server)
         {
             try
             {
-
+                Server = server;
                 Socket = socket;
                 LogItem = new LogItem(Socket.RemoteEndPoint.ToString());
-                Console.WriteLine(socket.RemoteEndPoint);
 
                 //make a byte array and receive data from the client 
                 Byte[] bReceive = new Byte[1024];
@@ -59,7 +59,7 @@ namespace Server
             }
         }
 
-        protected void POST(string[] sBufferArray)
+        protected virtual void POST(string[] sBufferArray)
         {
             sendFile(sBufferArray);
         }
@@ -95,13 +95,32 @@ namespace Server
         protected void sendError(string message)
         {
             string html = @"<html><head><title>" + message + @"</title></head><body><h1>" + message + @"</h1></body></html>";
-            byte[] messageByteArray = Encoding.ASCII.GetBytes(html);
-            SendHeader(messageByteArray.Length, message);
+            sendString(html, message);
+        }
+
+        protected void sendString(string message, string statusCode)
+        {
+            byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
+            SendHeader(messageByteArray.Length, statusCode);
             Socket.Send(messageByteArray);
         }
 
-        public abstract string getFile(string path);
-
+        public virtual string getFile(string path)
+        {
+            if (path == "/")
+            {
+                foreach (string defaultPage in Server.DefaultPages)
+                {
+                    FileInfo info = new FileInfo(Server.WebRoot + "/" + defaultPage);
+                    if (info.Exists)
+                    {
+                        path = "/" + defaultPage;
+                        break;
+                    }
+                }
+            }
+            return Server.WebRoot + path;
+        }
         public void SendHeader(int iTotBytes, string sStatusCode)
         {
             String sBuffer = "";

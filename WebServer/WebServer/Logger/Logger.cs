@@ -11,10 +11,12 @@ namespace Server.Logger
     class Logger
     {
         private static int BUFFLENG = 5;
+        private static string filePath = @"Logger/log.txt";
         private static Logger instance;
         private Semaphore canRead;
         private Semaphore canAdd;
         private Semaphore busy;
+        //private Semaphore fileBusy;
         private int readPos;
         private int addPos;
 
@@ -43,20 +45,37 @@ namespace Server.Logger
             canAdd = new Semaphore(BUFFLENG, BUFFLENG);
             canRead = new Semaphore(0, BUFFLENG);
             busy = new Semaphore(1, 1);
+            //fileBusy = new Semaphore(1, 1);
             readPos = 0;
             addPos = 0;
 
-            new Thread(run).Start();
+            new Thread(writeFile).Start();
         }
 
-        public void run()
+        public void writeFile()
         {
-            StreamWriter sw = new StreamWriter(@"Logger/log.txt");
             while (true)
             {
-                sw.WriteLine(read());
-                sw.Flush();
+                string logEntry = read();
+                using (StreamWriter sw = File.AppendText(filePath))
+                {
+                    sw.WriteLine(logEntry);
+                    sw.Flush();
+                }
             }
+        }
+
+        public string readFile()
+        {
+            string fileContent = "";
+            using (StreamReader sr = File.OpenText(filePath))
+            {
+                while (!sr.EndOfStream)
+                {
+                    fileContent += sr.ReadLine() + "\n";
+                }
+            }
+            return fileContent;
         }
 
         public void add(string message)

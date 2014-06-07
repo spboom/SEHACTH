@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control\ControlServer.cs" />
+    <Compile Include="Control\ControlServerRequest.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Logger\LogItem.cs" />
     <Compile Include="Program.cs" />

@@ -11,63 +11,26 @@ using Server.Logger;
 
 namespace Server.Web
 {
-    class WebServer
+    class WebServer : Server
     {
-
-        public static Semaphore WebRequests
-        {
-            get;
-            set;
-        }
-        static TcpListener server;
-
-        public static string WebRoot
-        {
-            get;
-            private set;
-        }
-
-        public static bool DirBrowsing
-        {
-            get;
-            private set;
-        }
-
-        public static string[] DefaultPages
-        {
-            get;
-            private set;
-        }
         public WebServer(Int32 port, string root, string[] defaultPages, bool directoryBrowsing)
+            :base(port, root, defaultPages, directoryBrowsing)
         {
-            WebRequests = new Semaphore(20, 20);
             if (root.Equals(""))
             {
-                root = @"./Web";
+                WebRoot = @"./Web";
             }
-            WebRoot = root;
-
-            DefaultPages = defaultPages;
-
-            DirBrowsing = directoryBrowsing;
-
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
-
-            server = new TcpListener(ip, port);
-            server.Start();
-            Thread thread = new Thread(new ThreadStart(run));
-            thread.Start();
         }
 
-        private void run()
+        protected override void run()
         {
             while (true)
             {
-                Socket socket = server.AcceptSocket();
+                Socket socket = Listener.AcceptSocket();
                 if (socket.Connected)
                 {
                     WebRequests.WaitOne();
-                    new WebServerRequest(socket);
+                    new WebServerRequest(socket, this);
 
                 }
             }
