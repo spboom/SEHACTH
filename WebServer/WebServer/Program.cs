@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Server.Control;
 using Server.Web;
+using Server.Logger;
 
 namespace Server
 {
@@ -56,6 +57,9 @@ namespace Server
             Console.WriteLine("Webserver (127.0.0.1:" + webPort + ") listening...");
             controlServer = new ControlServer(controlPort);
             Console.WriteLine("Controlserver (127.0.0.1: " + controlPort + ") listening...");
+
+            Logger.Logger logger = Logger.Logger.Instance;
+            Console.WriteLine("Logger started...");
 
             Console.Read();
         }

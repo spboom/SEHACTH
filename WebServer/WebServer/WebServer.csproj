@@ -43,8 +43,10 @@
   <ItemGroup>
     <Compile Include="Control\ControlServer.cs" />
     <Compile Include="Logger\Logger.cs" />
+    <Compile Include="Logger\LogItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\WebRequest.cs" />
     <Compile Include="Web\WebServer.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
