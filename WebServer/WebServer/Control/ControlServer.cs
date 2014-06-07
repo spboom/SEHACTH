@@ -23,7 +23,7 @@ namespace Server.Control
                 if (socket.Connected)
                 {
                     WebRequests.WaitOne();
-                    new ControlServerRequest(socket, this);
+                    new Thread(() => new ControlServerRequest(socket, this)).Start();
                 }
             }
         }

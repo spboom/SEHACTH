@@ -37,13 +37,13 @@ namespace Server.Logger
 
         public void log()
         {
-            Logger.Instance.add(this.ToString());
+            Logger.Instance.addToQueue(this.ToString());
         }
 
         public override string ToString()
         {
             end();
-            return startTime.ToString("MM/dd/yy H:mm:ss") + " : " + IpAdress + " -> " + Url + " : " + timer.ElapsedMilliseconds + "ms";
+            return startTime.ToString("MM/dd/yy H:mm:ss") + " : " + timer.ElapsedMilliseconds + "ms : "+ IpAdress + " -> " + Url;
         }
     }
 }

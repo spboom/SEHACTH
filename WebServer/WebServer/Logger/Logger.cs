@@ -16,7 +16,7 @@ namespace Server.Logger
         private Semaphore canRead;
         private Semaphore canAdd;
         private Semaphore busy;
-        //private Semaphore fileBusy;
+        private Semaphore fileBusy;
         private int readPos;
         private int addPos;
 
@@ -45,7 +45,7 @@ namespace Server.Logger
             canAdd = new Semaphore(BUFFLENG, BUFFLENG);
             canRead = new Semaphore(0, BUFFLENG);
             busy = new Semaphore(1, 1);
-            //fileBusy = new Semaphore(1, 1);
+            fileBusy = new Semaphore(1, 1);
             readPos = 0;
             addPos = 0;
 
@@ -56,18 +56,21 @@ namespace Server.Logger
         {
             while (true)
             {
-                string logEntry = read();
+                string logEntry = readFromQueue();
+                fileBusy.WaitOne();
                 using (StreamWriter sw = File.AppendText(filePath))
                 {
                     sw.WriteLine(logEntry);
                     sw.Flush();
                 }
+                fileBusy.Release();
             }
         }
 
         public string readFile()
         {
             string fileContent = "";
+            fileBusy.WaitOne();
             using (StreamReader sr = File.OpenText(filePath))
             {
                 while (!sr.EndOfStream)
@@ -75,10 +78,11 @@ namespace Server.Logger
                     fileContent = sr.ReadLine() + "\n" + fileContent;
                 }
             }
+            fileBusy.Release();
             return fileContent;
         }
 
-        public void add(string message)
+        public void addToQueue(string message)
         {
             canAdd.WaitOne();
             busy.WaitOne();
@@ -89,7 +93,7 @@ namespace Server.Logger
             busy.Release();
         }
 
-        public string read()
+        public string readFromQueue()
         {
             canRead.WaitOne();
             busy.WaitOne();

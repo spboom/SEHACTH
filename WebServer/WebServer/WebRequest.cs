@@ -139,7 +139,7 @@ namespace Server
             Socket.Disconnect(false);
             Socket.Dispose();
             LogItem.log();
-            WebServer.WebRequests.Release();
+            Server.WebRequests.Release();
 
         }
     }

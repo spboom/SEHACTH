@@ -14,7 +14,7 @@ namespace Server.Web
     class WebServer : Server
     {
         public WebServer(Int32 port, string root, string[] defaultPages, bool directoryBrowsing)
-            :base(port, root, defaultPages, directoryBrowsing)
+            : base(port, root, defaultPages, directoryBrowsing)
         {
             if (root.Equals(""))
             {
@@ -30,7 +30,7 @@ namespace Server.Web
                 if (socket.Connected)
                 {
                     WebRequests.WaitOne();
-                    new WebServerRequest(socket, this);
+                    new Thread(() => new WebServerRequest(socket, this)).Start();
 
                 }
             }
