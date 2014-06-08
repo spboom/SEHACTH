@@ -8,6 +8,7 @@ using System.Xml;
 using Server.Control;
 using Server.Web;
 using Server.Logger;
+using System.IO;
 
 namespace Server
 {

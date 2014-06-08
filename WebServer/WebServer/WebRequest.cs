@@ -47,7 +47,7 @@ namespace Server
                         GET(sBufferArray);
                         break;
                     default:
-                        sendError("400 Bad Request");
+                        sendError(400, "Bad Request");
                         break;
                 }
             }
@@ -61,47 +61,78 @@ namespace Server
 
         protected virtual void POST(string[] sBufferArray)
         {
-            sendFile(sBufferArray);
+            send(sBufferArray);
         }
         protected virtual void GET(string[] sBufferArray)
         {
-            sendFile(sBufferArray);
+            send(sBufferArray);
+        }
+
+        protected virtual void send(string[] sBufferArray)
+        {
+            sendFile(sBufferArray[1]);
+        }
+
+        protected virtual bool pathInRoot(string path)
+        {
+            DirectoryInfo rootInfo = new DirectoryInfo(new Uri(Server.WebRoot).LocalPath);
+            FileInfo fileInfo = new FileInfo(path);
+            DirectoryInfo parent = fileInfo.Directory;
+            do
+            {
+                if (rootInfo.FullName == parent.FullName)
+                {
+                    return true;
+                }
+                parent = parent.Parent;
+            }
+            while (parent != null);
+
+            return false;
         }
 
 
-        public virtual void sendFile(string[] sBufferArray)
+        public virtual void sendFile(string path)
         {
-            String filePath = getFile(sBufferArray[1]);
-
             try
             {
-                FileInfo info = new FileInfo(filePath);
-                int messageLength = 0;
-                if (Socket.Connected)
+                string filePath = getFile(path);
+
+                if (pathInRoot(filePath))
                 {
-                    //todo check mimetype
-                    if (info.Exists)
+                    FileInfo info = new FileInfo(filePath);
+                    int messageLength = 0;
+                    if (Socket.Connected)
                     {
-                        messageLength = (int)info.Length;
+                        //todo check mimetype
+                        if (info.Exists)
+                        {
+                            messageLength = (int)info.Length;
+                        }
+                        SendHeader(messageLength, 200, "OK");
+                        Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
                     }
-                    SendHeader(messageLength, "200 OK");
-                    Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
+                }
+                else
+                {
+                    sendError(403, "Forbidden");
                 }
             }
             catch (Exception)
             { }
         }
 
-        protected void sendError(string message)
+        protected void sendError(int statusCode, string statusMessage)
         {
-            string html = @"<html><head><title>" + message + @"</title></head><body><h1>" + message + @"</h1></body></html>";
-            sendString(html, message);
+            String completeMessage = statusCode + " " + statusMessage;
+            string html = @"<html><head><title>" + statusMessage + @"</title></head><body><h1>" + statusMessage + @"</h1></body></html>";
+            sendString(html, statusCode, statusMessage);
         }
 
-        protected void sendString(string message, string statusCode)
+        protected void sendString(string message, int statusCode, string statusMessage)
         {
             byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
-            SendHeader(messageByteArray.Length, statusCode);
+            SendHeader(messageByteArray.Length, statusCode, statusMessage);
             Socket.Send(messageByteArray);
         }
 
@@ -121,12 +152,12 @@ namespace Server
             }
             return Server.WebRoot + path;
         }
-        public void SendHeader(int iTotBytes, string sStatusCode)
+        public void SendHeader(int iTotBytes, int statusCode, string statusMessage)
         {
             String sBuffer = "";
             // if Mime type is not provided set default to text/html
 
-            sBuffer = sBuffer + "HTTP/1.1 " + sStatusCode + "\r\n";
+            sBuffer = sBuffer + "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n";
             sBuffer = sBuffer + "Server: My Little Server\r\n";
             sBuffer = sBuffer + "Accept-Ranges: bytes\r\n";
             sBuffer = sBuffer + "Content-Length: " + iTotBytes + "\r\n\r\n";

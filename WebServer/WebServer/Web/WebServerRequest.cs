@@ -15,35 +15,12 @@ namespace Server.Web
             : base(socket, server)
         { }
 
-        public override void sendFile(string[] sBufferArray)
-        {
-            String filePath = getFile(sBufferArray[1]);
-
-            try
-            {
-                FileInfo info = new FileInfo(filePath);
-                int messageLength = 0;
-                if (Socket.Connected)
-                {
-                    //todo check mimetype
-                    if (info.Exists)
-                    {
-                        messageLength = (int)info.Length;
-                    }
-                    SendHeader(messageLength, "200 OK");
-                    Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
-                }
-            }
-            catch (Exception)
-            { }
-        }
-
         protected override void GET(string[] sBufferArray)
         {
             send(sBufferArray);
         }
 
-        private void send(string[] sBufferArray)
+        protected override void send(string[] sBufferArray)
         {
             string path = getFile(sBufferArray[1]);
             bool isDir = Directory.Exists(path);
@@ -53,11 +30,11 @@ namespace Server.Web
             }
             else if (File.Exists(path))
             {
-                sendFile(sBufferArray);
+                sendFile(sBufferArray[1]);
             }
             else
             {
-                sendError("404 Not Found");
+                sendError(404, "Not Found");
             }
         }
 
@@ -78,7 +55,7 @@ namespace Server.Web
             }
             body += @"</lu></body>";
             html = @"<html>" + head + body + @"</html>";
-            sendString(html, "200 OK");
+            sendString(html, 200, "OK");
         }
     }
 }

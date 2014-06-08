@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -44,7 +45,20 @@ namespace Server
 
         protected TcpListener Listener { get; set; }
 
-        public string WebRoot { get; protected set; }
+        private string webRoot;
+        public string WebRoot
+        {
+            get { return webRoot; }
+            protected set
+            {
+                string path = value;
+                if (!Path.IsPathRooted(value))
+                {
+                    path = Path.Combine(new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).Directory.FullName, value);
+                }
+                webRoot = Path.GetFullPath(new Uri(path).LocalPath);
+            }
+        }
 
         public bool DirBrowsing { get; private set; }
 

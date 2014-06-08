@@ -14,12 +14,13 @@ namespace Server.Control
 
         protected override void POST(string[] sBufferArray)
         {
-            SendHeader(0, "200 POST OK");
+            SendHeader(0, 200, "POST OK");
         }
 
         protected override void GET(string[] sBufferArray)
         {
-            sendString(Logger.Logger.Instance.readFile(), "200 OK LOG");
+            base.GET(sBufferArray);
+            //sendString(Logger.Logger.Instance.readFile(), "200 OK LOG");
         }
     }
 }
