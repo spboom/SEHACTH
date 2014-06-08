@@ -55,13 +55,16 @@ namespace Server.Web
             {
                 sendFile(sBufferArray);
             }
-            sendError("404 Not Found");
+            else
+            {
+                sendError("404 Not Found");
+            }
         }
 
         private void sendFolder(string path)
         {
             string head, body, html, pathFromRoot = path.Substring(Server.WebRoot.Length);
-            if(pathFromRoot.Equals("/"))
+            if (pathFromRoot.Equals("/"))
             {
                 pathFromRoot = "";
             }
