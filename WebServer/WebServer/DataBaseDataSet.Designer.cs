@@ -28,7 +28,7 @@ namespace Server {
         
         private UserDataTable tableUser;
         
-        private global::System.Data.DataRelation relationFK_User_Role;
+        private global::System.Data.DataRelation relationFK_User_ToRole;
         
         private global::System.Data.SchemaSerializationMode _schemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
         
@@ -220,7 +220,7 @@ namespace Server {
                     this.tableUser.InitVars();
                 }
             }
-            this.relationFK_User_Role = this.Relations["FK_User_Role"];
+            this.relationFK_User_ToRole = this.Relations["FK_User_ToRole"];
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -235,10 +235,10 @@ namespace Server {
             base.Tables.Add(this.tableRole);
             this.tableUser = new UserDataTable();
             base.Tables.Add(this.tableUser);
-            this.relationFK_User_Role = new global::System.Data.DataRelation("FK_User_Role", new global::System.Data.DataColumn[] {
+            this.relationFK_User_ToRole = new global::System.Data.DataRelation("FK_User_ToRole", new global::System.Data.DataColumn[] {
                         this.tableRole.IdColumn}, new global::System.Data.DataColumn[] {
                         this.tableUser.Role_IdColumn}, false);
-            this.Relations.Add(this.relationFK_User_Role);
+            this.Relations.Add(this.relationFK_User_ToRole);
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -464,7 +464,8 @@ namespace Server {
                 this.columnId.AllowDBNull = false;
                 this.columnId.ReadOnly = true;
                 this.columnId.Unique = true;
-                this.columnName.MaxLength = 10;
+                this.columnName.AllowDBNull = false;
+                this.columnName.MaxLength = 50;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -602,6 +603,8 @@ namespace Server {
             
             private global::System.Data.DataColumn columnPassword;
             
+            private global::System.Data.DataColumn columnSalt;
+            
             private global::System.Data.DataColumn columnFirstName;
             
             private global::System.Data.DataColumn columnMiddleName;
@@ -609,8 +612,6 @@ namespace Server {
             private global::System.Data.DataColumn columnLastName;
             
             private global::System.Data.DataColumn columnRole_Id;
-            
-            private global::System.Data.DataColumn columnSalt;
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
@@ -663,6 +664,14 @@ namespace Server {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn SaltColumn {
+                get {
+                    return this.columnSalt;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public global::System.Data.DataColumn FirstNameColumn {
                 get {
                     return this.columnFirstName;
@@ -690,14 +699,6 @@ namespace Server {
             public global::System.Data.DataColumn Role_IdColumn {
                 get {
                     return this.columnRole_Id;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public global::System.Data.DataColumn SaltColumn {
-                get {
-                    return this.columnSalt;
                 }
             }
             
@@ -738,18 +739,18 @@ namespace Server {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public UserRow AddUserRow(string UserName, string Password, string FirstName, string MiddleName, string LastName, RoleRow parentRoleRowByFK_User_Role, string Salt) {
+            public UserRow AddUserRow(string UserName, string Password, string Salt, string FirstName, string MiddleName, string LastName, RoleRow parentRoleRowByFK_User_ToRole) {
                 UserRow rowUserRow = ((UserRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         UserName,
                         Password,
+                        Salt,
                         FirstName,
                         MiddleName,
                         LastName,
-                        null,
-                        Salt};
-                if ((parentRoleRowByFK_User_Role != null)) {
-                    columnValuesArray[5] = parentRoleRowByFK_User_Role[0];
+                        null};
+                if ((parentRoleRowByFK_User_ToRole != null)) {
+                    columnValuesArray[6] = parentRoleRowByFK_User_ToRole[0];
                 }
                 rowUserRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowUserRow);
@@ -782,11 +783,11 @@ namespace Server {
             internal void InitVars() {
                 this.columnUserName = base.Columns["UserName"];
                 this.columnPassword = base.Columns["Password"];
+                this.columnSalt = base.Columns["Salt"];
                 this.columnFirstName = base.Columns["FirstName"];
                 this.columnMiddleName = base.Columns["MiddleName"];
                 this.columnLastName = base.Columns["LastName"];
                 this.columnRole_Id = base.Columns["Role_Id"];
-                this.columnSalt = base.Columns["Salt"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -796,6 +797,8 @@ namespace Server {
                 base.Columns.Add(this.columnUserName);
                 this.columnPassword = new global::System.Data.DataColumn("Password", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnPassword);
+                this.columnSalt = new global::System.Data.DataColumn("Salt", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnSalt);
                 this.columnFirstName = new global::System.Data.DataColumn("FirstName", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnFirstName);
                 this.columnMiddleName = new global::System.Data.DataColumn("MiddleName", typeof(string), null, global::System.Data.MappingType.Element);
@@ -804,8 +807,6 @@ namespace Server {
                 base.Columns.Add(this.columnLastName);
                 this.columnRole_Id = new global::System.Data.DataColumn("Role_Id", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnRole_Id);
-                this.columnSalt = new global::System.Data.DataColumn("Salt", typeof(string), null, global::System.Data.MappingType.Element);
-                base.Columns.Add(this.columnSalt);
                 this.Constraints.Add(new global::System.Data.UniqueConstraint("Constraint1", new global::System.Data.DataColumn[] {
                                 this.columnUserName}, true));
                 this.columnUserName.AllowDBNull = false;
@@ -813,14 +814,14 @@ namespace Server {
                 this.columnUserName.MaxLength = 50;
                 this.columnPassword.AllowDBNull = false;
                 this.columnPassword.MaxLength = 100;
-                this.columnFirstName.AllowDBNull = false;
-                this.columnFirstName.MaxLength = 50;
-                this.columnMiddleName.MaxLength = 50;
-                this.columnLastName.AllowDBNull = false;
-                this.columnLastName.MaxLength = 50;
-                this.columnRole_Id.AllowDBNull = false;
                 this.columnSalt.AllowDBNull = false;
                 this.columnSalt.MaxLength = 100;
+                this.columnFirstName.AllowDBNull = false;
+                this.columnFirstName.MaxLength = 25;
+                this.columnMiddleName.MaxLength = 10;
+                this.columnLastName.AllowDBNull = false;
+                this.columnLastName.MaxLength = 25;
+                this.columnRole_Id.AllowDBNull = false;
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -976,12 +977,7 @@ namespace Server {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public string Name {
                 get {
-                    try {
-                        return ((string)(this[this.tableRole.NameColumn]));
-                    }
-                    catch (global::System.InvalidCastException e) {
-                        throw new global::System.Data.StrongTypingException("The value for column \'Name\' in table \'Role\' is DBNull.", e);
-                    }
+                    return ((string)(this[this.tableRole.NameColumn]));
                 }
                 set {
                     this[this.tableRole.NameColumn] = value;
@@ -990,24 +986,12 @@ namespace Server {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public bool IsNameNull() {
-                return this.IsNull(this.tableRole.NameColumn);
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public void SetNameNull() {
-                this[this.tableRole.NameColumn] = global::System.Convert.DBNull;
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public UserRow[] GetUserRows() {
-                if ((this.Table.ChildRelations["FK_User_Role"] == null)) {
+                if ((this.Table.ChildRelations["FK_User_ToRole"] == null)) {
                     return new UserRow[0];
                 }
                 else {
-                    return ((UserRow[])(base.GetChildRows(this.Table.ChildRelations["FK_User_Role"])));
+                    return ((UserRow[])(base.GetChildRows(this.Table.ChildRelations["FK_User_ToRole"])));
                 }
             }
         }
@@ -1045,6 +1029,17 @@ namespace Server {
                 }
                 set {
                     this[this.tableUser.PasswordColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string Salt {
+                get {
+                    return ((string)(this[this.tableUser.SaltColumn]));
+                }
+                set {
+                    this[this.tableUser.SaltColumn] = value;
                 }
             }
             
@@ -1099,23 +1094,12 @@ namespace Server {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string Salt {
-                get {
-                    return ((string)(this[this.tableUser.SaltColumn]));
-                }
-                set {
-                    this[this.tableUser.SaltColumn] = value;
-                }
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public RoleRow RoleRow {
                 get {
-                    return ((RoleRow)(this.GetParentRow(this.Table.ParentRelations["FK_User_Role"])));
+                    return ((RoleRow)(this.GetParentRow(this.Table.ParentRelations["FK_User_ToRole"])));
                 }
                 set {
-                    this.SetParentRow(value, this.Table.ParentRelations["FK_User_Role"]);
+                    this.SetParentRow(value, this.Table.ParentRelations["FK_User_ToRole"]);
                 }
             }
             
@@ -1330,28 +1314,25 @@ namespace Server.DataBaseDataSetTableAdapters {
             this._adapter.TableMappings.Add(tableMapping);
             this._adapter.DeleteCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.DeleteCommand.Connection = this.Connection;
-            this._adapter.DeleteCommand.CommandText = "DELETE FROM [dbo].[Role] WHERE (([Id] = @Original_Id) AND ((@IsNull_Name = 1 AND " +
-                "[Name] IS NULL) OR ([Name] = @Original_Name)))";
+            this._adapter.DeleteCommand.CommandText = "DELETE FROM [dbo].[Role] WHERE (([Id] = @Original_Id) AND ([Name] = @Original_Nam" +
+                "e))";
             this._adapter.DeleteCommand.CommandType = global::System.Data.CommandType.Text;
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Id", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Id", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
-            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@IsNull_Name", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, true, null, "", "", ""));
-            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Name", global::System.Data.SqlDbType.NChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Name", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.InsertCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.InsertCommand.Connection = this.Connection;
             this._adapter.InsertCommand.CommandText = "INSERT INTO [dbo].[Role] ([Name]) VALUES (@Name);\r\nSELECT Id, Name FROM Role WHER" +
                 "E (Id = SCOPE_IDENTITY())";
             this._adapter.InsertCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Name", global::System.Data.SqlDbType.NChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Name", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.UpdateCommand.Connection = this.Connection;
-            this._adapter.UpdateCommand.CommandText = "UPDATE [dbo].[Role] SET [Name] = @Name WHERE (([Id] = @Original_Id) AND ((@IsNull" +
-                "_Name = 1 AND [Name] IS NULL) OR ([Name] = @Original_Name)));\r\nSELECT Id, Name F" +
-                "ROM Role WHERE (Id = @Id)";
+            this._adapter.UpdateCommand.CommandText = "UPDATE [dbo].[Role] SET [Name] = @Name WHERE (([Id] = @Original_Id) AND ([Name] =" +
+                " @Original_Name));\r\nSELECT Id, Name FROM Role WHERE (Id = @Id)";
             this._adapter.UpdateCommand.CommandType = global::System.Data.CommandType.Text;
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Name", global::System.Data.SqlDbType.NChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Name", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Id", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Id", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@IsNull_Name", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, true, null, "", "", ""));
-            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Name", global::System.Data.SqlDbType.NChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Name", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Name", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Id", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.Input, 0, 0, "Id", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
         }
         
@@ -1432,12 +1413,10 @@ namespace Server.DataBaseDataSetTableAdapters {
         public virtual int Delete(int Original_Id, string Original_Name) {
             this.Adapter.DeleteCommand.Parameters[0].Value = ((int)(Original_Id));
             if ((Original_Name == null)) {
-                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(1));
-                this.Adapter.DeleteCommand.Parameters[2].Value = global::System.DBNull.Value;
+                throw new global::System.ArgumentNullException("Original_Name");
             }
             else {
-                this.Adapter.DeleteCommand.Parameters[1].Value = ((object)(0));
-                this.Adapter.DeleteCommand.Parameters[2].Value = ((string)(Original_Name));
+                this.Adapter.DeleteCommand.Parameters[1].Value = ((string)(Original_Name));
             }
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.DeleteCommand.Connection.State;
             if (((this.Adapter.DeleteCommand.Connection.State & global::System.Data.ConnectionState.Open) 
@@ -1461,7 +1440,7 @@ namespace Server.DataBaseDataSetTableAdapters {
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Insert, true)]
         public virtual int Insert(string Name) {
             if ((Name == null)) {
-                this.Adapter.InsertCommand.Parameters[0].Value = global::System.DBNull.Value;
+                throw new global::System.ArgumentNullException("Name");
             }
             else {
                 this.Adapter.InsertCommand.Parameters[0].Value = ((string)(Name));
@@ -1488,21 +1467,19 @@ namespace Server.DataBaseDataSetTableAdapters {
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
         public virtual int Update(string Name, int Original_Id, string Original_Name, int Id) {
             if ((Name == null)) {
-                this.Adapter.UpdateCommand.Parameters[0].Value = global::System.DBNull.Value;
+                throw new global::System.ArgumentNullException("Name");
             }
             else {
                 this.Adapter.UpdateCommand.Parameters[0].Value = ((string)(Name));
             }
             this.Adapter.UpdateCommand.Parameters[1].Value = ((int)(Original_Id));
             if ((Original_Name == null)) {
-                this.Adapter.UpdateCommand.Parameters[2].Value = ((object)(1));
-                this.Adapter.UpdateCommand.Parameters[3].Value = global::System.DBNull.Value;
+                throw new global::System.ArgumentNullException("Original_Name");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[2].Value = ((object)(0));
-                this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(Original_Name));
+                this.Adapter.UpdateCommand.Parameters[2].Value = ((string)(Original_Name));
             }
-            this.Adapter.UpdateCommand.Parameters[4].Value = ((int)(Id));
+            this.Adapter.UpdateCommand.Parameters[3].Value = ((int)(Id));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
             if (((this.Adapter.UpdateCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1651,6 +1628,7 @@ namespace Server.DataBaseDataSetTableAdapters {
             tableMapping.DataSetTable = "User";
             tableMapping.ColumnMappings.Add("UserName", "UserName");
             tableMapping.ColumnMappings.Add("Password", "Password");
+            tableMapping.ColumnMappings.Add("Salt", "Salt");
             tableMapping.ColumnMappings.Add("FirstName", "FirstName");
             tableMapping.ColumnMappings.Add("MiddleName", "MiddleName");
             tableMapping.ColumnMappings.Add("LastName", "LastName");
@@ -1658,10 +1636,11 @@ namespace Server.DataBaseDataSetTableAdapters {
             this._adapter.TableMappings.Add(tableMapping);
             this._adapter.DeleteCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.DeleteCommand.Connection = this.Connection;
-            this._adapter.DeleteCommand.CommandText = @"DELETE FROM [dbo].[User] WHERE (([UserName] = @Original_UserName) AND ([Password] = @Original_Password) AND ([FirstName] = @Original_FirstName) AND ((@IsNull_MiddleName = 1 AND [MiddleName] IS NULL) OR ([MiddleName] = @Original_MiddleName)) AND ([LastName] = @Original_LastName) AND ([Role_Id] = @Original_Role_Id))";
+            this._adapter.DeleteCommand.CommandText = @"DELETE FROM [dbo].[User] WHERE (([UserName] = @Original_UserName) AND ([Password] = @Original_Password) AND ([Salt] = @Original_Salt) AND ([FirstName] = @Original_FirstName) AND ((@IsNull_MiddleName = 1 AND [MiddleName] IS NULL) OR ([MiddleName] = @Original_MiddleName)) AND ([LastName] = @Original_LastName) AND ([Role_Id] = @Original_Role_Id))";
             this._adapter.DeleteCommand.CommandType = global::System.Data.CommandType.Text;
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_UserName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "UserName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Password", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Password", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Salt", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Salt", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_FirstName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "FirstName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@IsNull_MiddleName", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Original, true, null, "", "", ""));
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_MiddleName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
@@ -1669,28 +1648,31 @@ namespace Server.DataBaseDataSetTableAdapters {
             this._adapter.DeleteCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Role_Id", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Role_Id", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.InsertCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.InsertCommand.Connection = this.Connection;
-            this._adapter.InsertCommand.CommandText = @"INSERT INTO [dbo].[User] ([UserName], [Password], [FirstName], [MiddleName], [LastName], [Role_Id]) VALUES (@UserName, @Password, @FirstName, @MiddleName, @LastName, @Role_Id);
-SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] WHERE (UserName = @UserName)";
+            this._adapter.InsertCommand.CommandText = @"INSERT INTO [dbo].[User] ([UserName], [Password], [Salt], [FirstName], [MiddleName], [LastName], [Role_Id]) VALUES (@UserName, @Password, @Salt, @FirstName, @MiddleName, @LastName, @Role_Id);
+SELECT UserName, Password, Salt, FirstName, MiddleName, LastName, Role_Id FROM [User] WHERE (UserName = @UserName)";
             this._adapter.InsertCommand.CommandType = global::System.Data.CommandType.Text;
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@UserName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "UserName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Password", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Password", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Salt", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Salt", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@FirstName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "FirstName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@MiddleName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@LastName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "LastName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.InsertCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Role_Id", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Role_Id", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.UpdateCommand.Connection = this.Connection;
-            this._adapter.UpdateCommand.CommandText = @"UPDATE [dbo].[User] SET [UserName] = @UserName, [Password] = @Password, [FirstName] = @FirstName, [MiddleName] = @MiddleName, [LastName] = @LastName, [Role_Id] = @Role_Id WHERE (([UserName] = @Original_UserName) AND ([Password] = @Original_Password) AND ([FirstName] = @Original_FirstName) AND ((@IsNull_MiddleName = 1 AND [MiddleName] IS NULL) OR ([MiddleName] = @Original_MiddleName)) AND ([LastName] = @Original_LastName) AND ([Role_Id] = @Original_Role_Id));
-SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] WHERE (UserName = @UserName)";
+            this._adapter.UpdateCommand.CommandText = @"UPDATE [dbo].[User] SET [UserName] = @UserName, [Password] = @Password, [Salt] = @Salt, [FirstName] = @FirstName, [MiddleName] = @MiddleName, [LastName] = @LastName, [Role_Id] = @Role_Id WHERE (([UserName] = @Original_UserName) AND ([Password] = @Original_Password) AND ([Salt] = @Original_Salt) AND ([FirstName] = @Original_FirstName) AND ((@IsNull_MiddleName = 1 AND [MiddleName] IS NULL) OR ([MiddleName] = @Original_MiddleName)) AND ([LastName] = @Original_LastName) AND ([Role_Id] = @Original_Role_Id));
+SELECT UserName, Password, Salt, FirstName, MiddleName, LastName, Role_Id FROM [User] WHERE (UserName = @UserName)";
             this._adapter.UpdateCommand.CommandType = global::System.Data.CommandType.Text;
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@UserName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "UserName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Password", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Password", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Salt", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Salt", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@FirstName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "FirstName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@MiddleName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@LastName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "LastName", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Role_Id", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Role_Id", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_UserName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "UserName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Password", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Password", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
+            this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_Salt", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "Salt", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_FirstName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "FirstName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@IsNull_MiddleName", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Original, true, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@Original_MiddleName", global::System.Data.SqlDbType.VarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "MiddleName", global::System.Data.DataRowVersion.Original, false, null, "", "", ""));
@@ -1711,8 +1693,8 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
             this._commandCollection = new global::System.Data.SqlClient.SqlCommand[1];
             this._commandCollection[0] = new global::System.Data.SqlClient.SqlCommand();
             this._commandCollection[0].Connection = this.Connection;
-            this._commandCollection[0].CommandText = "SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM dbo.[Use" +
-                "r]";
+            this._commandCollection[0].CommandText = "SELECT UserName, Password, Salt, FirstName, MiddleName, LastName, Role_Id FROM db" +
+                "o.[User]";
             this._commandCollection[0].CommandType = global::System.Data.CommandType.Text;
         }
         
@@ -1773,7 +1755,7 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Delete, true)]
-        public virtual int Delete(string Original_UserName, string Original_Password, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
+        public virtual int Delete(string Original_UserName, string Original_Password, string Original_Salt, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
             if ((Original_UserName == null)) {
                 throw new global::System.ArgumentNullException("Original_UserName");
             }
@@ -1786,27 +1768,33 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
             else {
                 this.Adapter.DeleteCommand.Parameters[1].Value = ((string)(Original_Password));
             }
+            if ((Original_Salt == null)) {
+                throw new global::System.ArgumentNullException("Original_Salt");
+            }
+            else {
+                this.Adapter.DeleteCommand.Parameters[2].Value = ((string)(Original_Salt));
+            }
             if ((Original_FirstName == null)) {
                 throw new global::System.ArgumentNullException("Original_FirstName");
             }
             else {
-                this.Adapter.DeleteCommand.Parameters[2].Value = ((string)(Original_FirstName));
+                this.Adapter.DeleteCommand.Parameters[3].Value = ((string)(Original_FirstName));
             }
             if ((Original_MiddleName == null)) {
-                this.Adapter.DeleteCommand.Parameters[3].Value = ((object)(1));
-                this.Adapter.DeleteCommand.Parameters[4].Value = global::System.DBNull.Value;
+                this.Adapter.DeleteCommand.Parameters[4].Value = ((object)(1));
+                this.Adapter.DeleteCommand.Parameters[5].Value = global::System.DBNull.Value;
             }
             else {
-                this.Adapter.DeleteCommand.Parameters[3].Value = ((object)(0));
-                this.Adapter.DeleteCommand.Parameters[4].Value = ((string)(Original_MiddleName));
+                this.Adapter.DeleteCommand.Parameters[4].Value = ((object)(0));
+                this.Adapter.DeleteCommand.Parameters[5].Value = ((string)(Original_MiddleName));
             }
             if ((Original_LastName == null)) {
                 throw new global::System.ArgumentNullException("Original_LastName");
             }
             else {
-                this.Adapter.DeleteCommand.Parameters[5].Value = ((string)(Original_LastName));
+                this.Adapter.DeleteCommand.Parameters[6].Value = ((string)(Original_LastName));
             }
-            this.Adapter.DeleteCommand.Parameters[6].Value = ((int)(Original_Role_Id));
+            this.Adapter.DeleteCommand.Parameters[7].Value = ((int)(Original_Role_Id));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.DeleteCommand.Connection.State;
             if (((this.Adapter.DeleteCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1827,7 +1815,7 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Insert, true)]
-        public virtual int Insert(string UserName, string Password, string FirstName, string MiddleName, string LastName, int Role_Id) {
+        public virtual int Insert(string UserName, string Password, string Salt, string FirstName, string MiddleName, string LastName, int Role_Id) {
             if ((UserName == null)) {
                 throw new global::System.ArgumentNullException("UserName");
             }
@@ -1840,25 +1828,31 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
             else {
                 this.Adapter.InsertCommand.Parameters[1].Value = ((string)(Password));
             }
+            if ((Salt == null)) {
+                throw new global::System.ArgumentNullException("Salt");
+            }
+            else {
+                this.Adapter.InsertCommand.Parameters[2].Value = ((string)(Salt));
+            }
             if ((FirstName == null)) {
                 throw new global::System.ArgumentNullException("FirstName");
             }
             else {
-                this.Adapter.InsertCommand.Parameters[2].Value = ((string)(FirstName));
+                this.Adapter.InsertCommand.Parameters[3].Value = ((string)(FirstName));
             }
             if ((MiddleName == null)) {
-                this.Adapter.InsertCommand.Parameters[3].Value = global::System.DBNull.Value;
+                this.Adapter.InsertCommand.Parameters[4].Value = global::System.DBNull.Value;
             }
             else {
-                this.Adapter.InsertCommand.Parameters[3].Value = ((string)(MiddleName));
+                this.Adapter.InsertCommand.Parameters[4].Value = ((string)(MiddleName));
             }
             if ((LastName == null)) {
                 throw new global::System.ArgumentNullException("LastName");
             }
             else {
-                this.Adapter.InsertCommand.Parameters[4].Value = ((string)(LastName));
+                this.Adapter.InsertCommand.Parameters[5].Value = ((string)(LastName));
             }
-            this.Adapter.InsertCommand.Parameters[5].Value = ((int)(Role_Id));
+            this.Adapter.InsertCommand.Parameters[6].Value = ((int)(Role_Id));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.InsertCommand.Connection.State;
             if (((this.Adapter.InsertCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1879,7 +1873,7 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
-        public virtual int Update(string UserName, string Password, string FirstName, string MiddleName, string LastName, int Role_Id, string Original_UserName, string Original_Password, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
+        public virtual int Update(string UserName, string Password, string Salt, string FirstName, string MiddleName, string LastName, int Role_Id, string Original_UserName, string Original_Password, string Original_Salt, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
             if ((UserName == null)) {
                 throw new global::System.ArgumentNullException("UserName");
             }
@@ -1892,58 +1886,70 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
             else {
                 this.Adapter.UpdateCommand.Parameters[1].Value = ((string)(Password));
             }
+            if ((Salt == null)) {
+                throw new global::System.ArgumentNullException("Salt");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[2].Value = ((string)(Salt));
+            }
             if ((FirstName == null)) {
                 throw new global::System.ArgumentNullException("FirstName");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[2].Value = ((string)(FirstName));
+                this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(FirstName));
             }
             if ((MiddleName == null)) {
-                this.Adapter.UpdateCommand.Parameters[3].Value = global::System.DBNull.Value;
+                this.Adapter.UpdateCommand.Parameters[4].Value = global::System.DBNull.Value;
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[3].Value = ((string)(MiddleName));
+                this.Adapter.UpdateCommand.Parameters[4].Value = ((string)(MiddleName));
             }
             if ((LastName == null)) {
                 throw new global::System.ArgumentNullException("LastName");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[4].Value = ((string)(LastName));
+                this.Adapter.UpdateCommand.Parameters[5].Value = ((string)(LastName));
             }
-            this.Adapter.UpdateCommand.Parameters[5].Value = ((int)(Role_Id));
+            this.Adapter.UpdateCommand.Parameters[6].Value = ((int)(Role_Id));
             if ((Original_UserName == null)) {
                 throw new global::System.ArgumentNullException("Original_UserName");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[6].Value = ((string)(Original_UserName));
+                this.Adapter.UpdateCommand.Parameters[7].Value = ((string)(Original_UserName));
             }
             if ((Original_Password == null)) {
                 throw new global::System.ArgumentNullException("Original_Password");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[7].Value = ((string)(Original_Password));
+                this.Adapter.UpdateCommand.Parameters[8].Value = ((string)(Original_Password));
+            }
+            if ((Original_Salt == null)) {
+                throw new global::System.ArgumentNullException("Original_Salt");
+            }
+            else {
+                this.Adapter.UpdateCommand.Parameters[9].Value = ((string)(Original_Salt));
             }
             if ((Original_FirstName == null)) {
                 throw new global::System.ArgumentNullException("Original_FirstName");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[8].Value = ((string)(Original_FirstName));
+                this.Adapter.UpdateCommand.Parameters[10].Value = ((string)(Original_FirstName));
             }
             if ((Original_MiddleName == null)) {
-                this.Adapter.UpdateCommand.Parameters[9].Value = ((object)(1));
-                this.Adapter.UpdateCommand.Parameters[10].Value = global::System.DBNull.Value;
+                this.Adapter.UpdateCommand.Parameters[11].Value = ((object)(1));
+                this.Adapter.UpdateCommand.Parameters[12].Value = global::System.DBNull.Value;
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[9].Value = ((object)(0));
-                this.Adapter.UpdateCommand.Parameters[10].Value = ((string)(Original_MiddleName));
+                this.Adapter.UpdateCommand.Parameters[11].Value = ((object)(0));
+                this.Adapter.UpdateCommand.Parameters[12].Value = ((string)(Original_MiddleName));
             }
             if ((Original_LastName == null)) {
                 throw new global::System.ArgumentNullException("Original_LastName");
             }
             else {
-                this.Adapter.UpdateCommand.Parameters[11].Value = ((string)(Original_LastName));
+                this.Adapter.UpdateCommand.Parameters[13].Value = ((string)(Original_LastName));
             }
-            this.Adapter.UpdateCommand.Parameters[12].Value = ((int)(Original_Role_Id));
+            this.Adapter.UpdateCommand.Parameters[14].Value = ((int)(Original_Role_Id));
             global::System.Data.ConnectionState previousConnectionState = this.Adapter.UpdateCommand.Connection.State;
             if (((this.Adapter.UpdateCommand.Connection.State & global::System.Data.ConnectionState.Open) 
                         != global::System.Data.ConnectionState.Open)) {
@@ -1964,8 +1970,8 @@ SELECT UserName, Password, FirstName, MiddleName, LastName, Role_Id FROM [User] 
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
-        public virtual int Update(string Password, string FirstName, string MiddleName, string LastName, int Role_Id, string Original_UserName, string Original_Password, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
-            return this.Update(Original_UserName, Password, FirstName, MiddleName, LastName, Role_Id, Original_UserName, Original_Password, Original_FirstName, Original_MiddleName, Original_LastName, Original_Role_Id);
+        public virtual int Update(string Password, string Salt, string FirstName, string MiddleName, string LastName, int Role_Id, string Original_UserName, string Original_Password, string Original_Salt, string Original_FirstName, string Original_MiddleName, string Original_LastName, int Original_Role_Id) {
+            return this.Update(Original_UserName, Password, Salt, FirstName, MiddleName, LastName, Role_Id, Original_UserName, Original_Password, Original_Salt, Original_FirstName, Original_MiddleName, Original_LastName, Original_Role_Id);
         }
     }
     
