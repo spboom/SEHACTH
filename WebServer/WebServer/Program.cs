@@ -9,6 +9,7 @@ using Server.Control;
 using Server.Web;
 using Server.Logger;
 using System.IO;
+using Server.DataBaseDataSetTableAdapters;
 
 namespace Server
 {
@@ -61,6 +62,35 @@ namespace Server
 
             Logger.Logger logger = Logger.Logger.Instance;
             Console.WriteLine("Logger started...");
+
+
+            /////////////////////
+
+            Console.WriteLine("Database Test START");
+
+            DataBaseDataSet dataBaseDataSet = new DataBaseDataSet();
+            DataBaseDataSet.UserRow newUserRow = dataBaseDataSet.User.NewUserRow();
+
+            newUserRow.UserName = "user1";
+            newUserRow.Password = "aaa";
+            newUserRow.Salt = "bbb";
+            newUserRow.FirstName = "";
+            newUserRow.MiddleName = "";
+            newUserRow.LastName = "";
+            newUserRow.Role_Id = 1;
+
+            dataBaseDataSet.User.Rows.Add(newUserRow);
+
+            Console.WriteLine(dataBaseDataSet.User.Count());
+
+            DataBaseDataSetTableAdapters.UserTableAdapter userTableAdapter = new UserTableAdapter();
+            userTableAdapter.Update(dataBaseDataSet.User);
+
+            Console.WriteLine("Database Test END");
+
+            /////////////////////
+
+
 
             Console.Read();
         }
