@@ -62,6 +62,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="DataBaseDataSet.cs">
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
       <SubType>Component</SubType>
