@@ -62,6 +62,14 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
+    <Compile Include="DataBaseDataSet.cs">
+      <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataBaseDataSet.Designer.cs">
+      <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -90,6 +98,9 @@
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>DataBaseDataSet.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DataBaseDataSet.Designer.cs</LastGenOutput>
     </None>
     <None Include="DataBaseDataSet.xss">
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
