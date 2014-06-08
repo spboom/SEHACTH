@@ -15,7 +15,7 @@ namespace Server.Control
         static readonly string[] CONTROLDEFAULTPAGES = new string[] { "adminForm.html" };
         static readonly bool CONTROLDIRECTORYBROWSING = false;
 
-        public ControlServer(Int32 port)
+        public ControlServer(int port)
             : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
         { }
 

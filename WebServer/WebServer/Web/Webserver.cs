@@ -13,7 +13,7 @@ namespace Server.Web
 {
     class WebServer : Server
     {
-        public WebServer(Int32 port, string root, string[] defaultPages, bool directoryBrowsing)
+        public WebServer(int port, string root, string[] defaultPages, bool directoryBrowsing)
             : base(port, root, defaultPages, directoryBrowsing)
         {
             if (root.Equals(""))
