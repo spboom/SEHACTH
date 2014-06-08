@@ -15,6 +15,10 @@ namespace Server.Logger
         
         public DateTime startTime { get; set; }
 
+        public String statusMessage { get; set; }
+
+        public int responseCode { get; set; }
+
         private Stopwatch timer { get; set; }
 
         public LogItem(string ip)
@@ -43,7 +47,7 @@ namespace Server.Logger
         public override string ToString()
         {
             end();
-            return startTime.ToString("MM/dd/yy H:mm:ss") + " : " + timer.ElapsedMilliseconds + "ms : "+ IpAdress + " -> " + Url;
+            return "Timestamp: " + startTime.ToString("MM/dd/yy H:mm:ss") + ", response code: " + responseCode + ", responce time:" + timer.ElapsedMilliseconds + "ms, request: "+ IpAdress + " -> " + Url;
         }
     }
 }

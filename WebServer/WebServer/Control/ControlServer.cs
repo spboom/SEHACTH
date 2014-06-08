@@ -11,8 +11,12 @@ namespace Server.Control
 {
     class ControlServer : Server
     {
+        static readonly string CONTROLROOT = @"./Control";
+        static readonly string[] CONTROLDEFAULTPAGES = new string[] { "adminForm.html" };
+        static readonly bool CONTROLDIRECTORYBROWSING = false;
+
         public ControlServer(Int32 port)
-            : base(port, @"./Control", new string[] { "adminForm.html" }, false)
+            : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
         { }
 
         protected override void run()
