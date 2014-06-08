@@ -58,19 +58,12 @@
   <ItemGroup>
     <Compile Include="Control\ControlServer.cs" />
     <Compile Include="Control\ControlServerRequest.cs" />
-    <Compile Include="DataBaseDataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
-    </Compile>
     <Compile Include="DataBaseDataSet.cs">
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataBaseDataSet.Designer.cs">
-      <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
+      <DependentUpon>DataBaseDataSet.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
