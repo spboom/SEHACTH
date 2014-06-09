@@ -18,6 +18,7 @@ namespace Server
 
         private static WebServer webServer;
         private static ControlServer controlServer;
+        public static readonly string settingsFilePath = @"Control/Settings.xml";
         static void Main(string[] args)
         {
             initServer();
@@ -31,7 +32,7 @@ namespace Server
             bool directoryBrowsing;
 
             XmlDocument settingsDoc = new XmlDocument();
-            settingsDoc.Load(@"Control/Settings.xml");
+            settingsDoc.Load(settingsFilePath);
 
             XmlElement settingsElement = settingsDoc.DocumentElement;
 
@@ -94,5 +95,30 @@ namespace Server
 
             Console.Read();
         }
+
+        public static int WebServerPort { get { return webServer.Port; } }
+
+        public static int ControlServerPort { get { return controlServer.Port; } }
+
+        public static string WebServerRoot { get { return webServer.WebRoot; } }
+
+        public static string WebServerDefaultPages
+        {
+            get
+            {
+                string defaultPages = "";
+                foreach (string defaultPage in webServer.DefaultPages)
+                {
+                    if (defaultPages != "")
+                    {
+                        defaultPages += ";";
+                    }
+                    defaultPages += defaultPage;
+                }
+                return defaultPages;
+            }
+        }
+
+        public static bool webServerDirectoryBrowsing { get; set; }
     }
 }
