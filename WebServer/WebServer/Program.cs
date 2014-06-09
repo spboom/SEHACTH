@@ -85,7 +85,7 @@ namespace Server
             Console.WriteLine(dataBaseDataSet.User.Count());
 
             DataBaseDataSetTableAdapters.UserTableAdapter userTableAdapter = new UserTableAdapter();
-            userTableAdapter.Update(dataBaseDataSet.User);
+            //userTableAdapter.Update(dataBaseDataSet.User);
 
             Console.WriteLine("Database Test END");
 
@@ -102,6 +102,7 @@ namespace Server
 
         public static string WebServerRoot { get { return webServer.WebRoot; } }
 
+        //TODO dicide if needs to be moved
         public static string WebServerDefaultPages
         {
             get
@@ -118,6 +119,13 @@ namespace Server
                 return defaultPages;
             }
         }
+
+        public static void updateSettings(int webServerPort, int controlServerPort, string webServerRoot, string[] webServerDefaultPages, bool webServerDirectoryBrowsing)
+        {
+            webServer = new WebServer(webServerPort, webServerRoot, webServerDefaultPages, webServerDirectoryBrowsing);
+            controlServer = new ControlServer(controlServerPort);
+        }
+
 
         public static bool webServerDirectoryBrowsing { get; set; }
     }

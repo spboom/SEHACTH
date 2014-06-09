@@ -6,39 +6,45 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Server.Logger;
-using Server.Web;
 
 namespace Server
 {
-    abstract class WebRequest
+    abstract class WebRequest<T> where T : Server
     {
 
         protected Socket Socket { get; set; }
 
         protected LogItem LogItem { get; set; }
 
-        protected Server Server { get; set; }
+        protected T ServerInstance { get; set; }
 
-        public WebRequest(Socket socket, Server server)
+        public WebRequest(Socket socket, T server)
         {
             try
             {
-                Server = server;
+                ServerInstance = server;
                 Socket = socket;
                 LogItem = new LogItem(Socket.RemoteEndPoint.ToString());
 
                 //make a byte array and receive data from the client 
                 Byte[] bReceive = new Byte[1024];
-                int i = socket.Receive(bReceive, bReceive.Length, 0);
+                int i = socket.Receive(bReceive, bReceive.Length, SocketFlags.None);
+
+                //Remove \0 bytes
+                List<byte> received = new List<byte>(bReceive);
+                received.RemoveAll((byte b) => { return b == '\0'; });
+
 
                 //Convert Byte to String
-                string sBuffer = Encoding.ASCII.GetString(bReceive);
+                string sBuffer = Encoding.ASCII.GetString(received.ToArray());
 
-                string[] sBufferArray = sBuffer.Split(' ');
+                string[] sBufferArray = sBuffer.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
-                LogItem.Url = Socket.LocalEndPoint + sBufferArray[1];
+                string[] request = sBufferArray[0].Split(' ');
 
-                switch (sBufferArray[0])
+                LogItem.Url = Socket.LocalEndPoint + request[1];
+
+                switch (request[0])
                 {
                     case "POST":
                         POST(sBufferArray);
@@ -70,12 +76,12 @@ namespace Server
 
         protected virtual void send(string[] sBufferArray)
         {
-            sendFile(sBufferArray[1]);
+            sendFile(sBufferArray[0].Split(' ')[1]);
         }
 
         protected virtual bool pathInRoot(string path)
         {
-            DirectoryInfo rootInfo = new DirectoryInfo(new Uri(Server.WebRoot).LocalPath);
+            DirectoryInfo rootInfo = new DirectoryInfo(new Uri(ServerInstance.WebRoot).LocalPath);
             FileInfo fileInfo = new FileInfo(path);
             DirectoryInfo parent = fileInfo.Directory;
             do
@@ -136,13 +142,13 @@ namespace Server
             Socket.Send(messageByteArray);
         }
 
-        public virtual string getFile(string path)
+        protected virtual string getFile(string path)
         {
-            if (path == "/" && !Server.DirBrowsing)
+            if (path == "/" && !ServerInstance.DirBrowsing)
             {
-                foreach (string defaultPage in Server.DefaultPages)
+                foreach (string defaultPage in ServerInstance.DefaultPages)
                 {
-                    FileInfo info = new FileInfo(Server.WebRoot + "/" + defaultPage);
+                    FileInfo info = new FileInfo(ServerInstance.WebRoot + "/" + defaultPage);
                     if (info.Exists)
                     {
                         path = "/" + defaultPage;
@@ -150,7 +156,7 @@ namespace Server
                     }
                 }
             }
-            return Server.WebRoot + path;
+            return ServerInstance.WebRoot + path;
         }
         public void SendHeader(int iTotBytes, int statusCode, string statusMessage)
         {

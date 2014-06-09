@@ -36,20 +36,21 @@ namespace Server.Control
 
         public void saveSettings(int webServerPort, int controlServerPort, string webServerRoot, string[] webServerDefaultPages, bool webServerDirectoryBrowsing)
         {
+            Program.updateSettings(webServerPort, controlServerPort, webServerRoot, webServerDefaultPages, webServerDirectoryBrowsing);
             settingsFile.WaitOne();
             string settings = "";
             settings += "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
             settings += "<Settings>\n";
-            settings += "  <WebServer port=" + webServerPort + " //>\n";
-            settings += "  <ControlServer port=" + controlServerPort + " //>\n";
-            settings += "  <WebRoot path=" + webServerRoot + " //>\n";
+            settings += "  <WebServer port=\"" + webServerPort + "\" />\n";
+            settings += "  <ControlServer port=\"" + controlServerPort + "\" />\n";
+            settings += "  <WebRoot path=\"" + webServerRoot + "\" />\n";
             settings += "  <DefaultPage>\n";
             foreach (string defaultPage in webServerDefaultPages)
             {
-                settings += "    <File name=" + defaultPage + " />\n";
+                settings += "    <File name=\"" + defaultPage + "\" />\n";
             }
-            settings += "  <//DefaultPage>\n";
-            settings += "  <DirectoryBrowsing value=" + webServerDirectoryBrowsing + " //>\n";
+            settings += "  </DefaultPage>\n";
+            settings += "  <DirectoryBrowsing value=\"" + webServerDirectoryBrowsing + "\" />\n";
             settings += "</Settings>";
             using (StreamWriter sw = new StreamWriter(Program.settingsFilePath, false))
             {
@@ -57,7 +58,6 @@ namespace Server.Control
                 sw.Flush();
             }
             settingsFile.Release();
-
         }
 
         public string getAdminForm()
@@ -75,11 +75,11 @@ namespace Server.Control
             adminForm += "      <table>\n";
             adminForm += "        <thead><tr><th>SuperServer</th><th class=\"right\">Control Panel</th></tr></thead>\n";
             adminForm += "        <tbody>\n";
-            adminForm += "          <tr><td>Web port:</td><td><input type=\"text\" value=" + Program.WebServerPort + " /></td></tr>\n";
-            adminForm += "          <tr><td>Control port:</td><td><input type=\"text value=" + Program.ControlServerPort + " /></td></tr>\n";
-            adminForm += "          <tr><td>Webroot:</td><td><input type=\"text\" value=" + Program.WebServerRoot + "></td></tr>\n";
-            adminForm += "          <tr><td>Default page:</td><td><input type=\"text\" value=" + Program.WebServerDefaultPages + "></td></tr>\n";
-            adminForm += "          <tr><td>Directory browsing</td><td><input type=\"checkbox\" " + browseDirectory + "></td></tr>\n";
+            adminForm += "          <tr><td>Web port:</td><td><input type=\"text\" name=\"webPort\" value=" + Program.WebServerPort + " /></td></tr>\n";
+            adminForm += "          <tr><td>Control port:</td><td><input type=\"text\" name=\"controlPort\" value=" + Program.ControlServerPort + " /></td></tr>\n";
+            adminForm += "          <tr><td>Webroot:</td><td><input type=\"text\" name=\"webRoot\" value=" + Program.WebServerRoot + "></td></tr>\n";
+            adminForm += "          <tr><td>Default page:</td><td><input type=\"text\" name=\"defaultPage\" value=" + Program.WebServerDefaultPages + "></td></tr>\n";
+            adminForm += "          <tr><td>Directory browsing</td><td><input type=\"checkbox\" name=\"dirBrowsing\" " + browseDirectory + "></td></tr>\n";
             adminForm += "          <tr><td><input type=\"button\" name=\"log\" value=\"Show Log\"></td><td class=\"right\"><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>\n";
             adminForm += "        </tbody>\n";
             adminForm += "      </table>\n";

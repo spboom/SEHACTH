@@ -49,7 +49,7 @@ namespace Server
         public string WebRoot
         {
             get { return webRoot; }
-            protected set
+            set
             {
                 string path = value;
                 if (!Path.IsPathRooted(value))
@@ -60,9 +60,9 @@ namespace Server
             }
         }
 
-        public bool DirBrowsing { get; private set; }
+        public bool DirBrowsing { get; set; }
 
-        public string[] DefaultPages { get; private set; }
+        public string[] DefaultPages { get; set; }
 
 
         public int Port { get; set; }
