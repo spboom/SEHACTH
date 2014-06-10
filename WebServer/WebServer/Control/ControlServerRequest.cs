@@ -75,5 +75,11 @@ namespace Server.Control
                 base.sendFile(path);
             }
         }
+
+        public override void close()
+        {
+            base.close();
+            ServerInstance.EndRequest(this);
+        }
     }
 }

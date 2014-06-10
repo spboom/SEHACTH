@@ -58,5 +58,11 @@ namespace Server.Web
             html = @"<html>" + head + body + @"</html>";
             sendString(html, 200, "OK");
         }
+
+        public override void close()
+        {
+            base.close();
+            ServerInstance.EndRequest(this);
+        }
     }
 }

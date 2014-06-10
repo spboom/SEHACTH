@@ -20,15 +20,20 @@ namespace Server
 
         public WebRequest(Socket socket, T server)
         {
+            ServerInstance = server;
+            Socket = socket;
+        }
+
+        public void start()
+        {
+
             try
             {
-                ServerInstance = server;
-                Socket = socket;
                 LogItem = new LogItem(Socket.RemoteEndPoint.ToString());
 
                 //make a byte array and receive data from the client 
                 Byte[] bReceive = new Byte[1024];
-                int i = socket.Receive(bReceive, bReceive.Length, SocketFlags.None);
+                int i = Socket.Receive(bReceive, bReceive.Length, SocketFlags.None);
 
                 //Remove \0 bytes
                 List<byte> received = new List<byte>(bReceive);
@@ -61,7 +66,10 @@ namespace Server
             { }
             finally
             {
-                close();
+                if (Socket.Connected)
+                {
+                    close();
+                }
             }
         }
 
@@ -171,13 +179,23 @@ namespace Server
             Socket.Send(Encoding.ASCII.GetBytes(sBuffer), Encoding.ASCII.GetBytes(sBuffer).Length, SocketFlags.None);
         }
 
-        public void close()
+        public virtual void close()
         {
-            Socket.Disconnect(false);
-            Socket.Dispose();
-            LogItem.log();
-            Server.WebRequests.Release();
+            try
+            {
+                Socket.Disconnect(false);
+                Socket.Dispose();
+                LogItem.log();
+                Server.WebRequests.Release();
+            }
+            catch { }
 
+        }
+
+        public void forceClose()
+        {
+            sendError(423, "Server Reboot");
+            close();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace Server.Web
 {
     class WebServer : Server
     {
+
+        private static List<WebServerRequest> openSockets;
+
         public WebServer(int port, string root, string[] defaultPages, bool directoryBrowsing)
             : base(port, root, defaultPages, directoryBrowsing)
         {
@@ -20,20 +24,53 @@ namespace Server.Web
             {
                 WebRoot = @"./Web";
             }
+
+            openSockets = new List<WebServerRequest>(Server.MAXOPENSOCKETS);
         }
 
         protected override void run()
         {
-            while (true)
+            while (running)
             {
-                Socket socket = Listener.AcceptSocket();
-                if (socket.Connected)
+                try
                 {
-                    WebRequests.WaitOne();
-                    new Thread(() => new WebServerRequest(socket, this)).Start();
-
+                    Socket socket = Listener.AcceptSocket();
+                    if (socket.Connected)
+                    {
+                        WebRequests.WaitOne();
+                        new Thread(() =>
+                        {
+                            WebServerRequest request = new WebServerRequest(socket, this);
+                            openSockets.Add(request);
+                            request.start();
+                        }).Start();
+                    }
                 }
+                catch { }
             }
+        }
+
+        public override bool close()
+        {
+            try
+            {
+                running = false;
+                while (openSockets.Count > 0)
+                {
+                    openSockets[0].forceClose();
+                }
+                Listener.Stop();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void EndRequest(WebServerRequest request)
+        {
+            openSockets.Remove(request);
         }
     }
 }

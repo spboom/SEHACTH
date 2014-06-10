@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,20 +18,33 @@ namespace Server.Control
         static readonly bool CONTROLDIRECTORYBROWSING = false;
         static readonly Semaphore settingsFile = new Semaphore(1, 1);
 
+        private static List<ControlServerRequest> openSockets;
+
         public ControlServer(int port)
             : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
-        { }
+        {
+            openSockets = new List<ControlServerRequest>(Server.MAXOPENSOCKETS);
+        }
 
         protected override void run()
         {
-            while (true)
+            while (running)
             {
-                Socket socket = Listener.AcceptSocket();
-                if (socket.Connected)
+                try
                 {
-                    WebRequests.WaitOne();
-                    new Thread(() => new ControlServerRequest(socket, this)).Start();
+                    Socket socket = Listener.AcceptSocket();
+                    if (socket.Connected)
+                    {
+                        WebRequests.WaitOne();
+                        new Thread(() =>
+                        {
+                            ControlServerRequest request = new ControlServerRequest(socket, this);
+                            openSockets.Add(request);
+                            request.start();
+                        }).Start();
+                    }
                 }
+                catch { }
             }
         }
 
@@ -87,6 +101,29 @@ namespace Server.Control
             adminForm += "  </body>\n";
             adminForm += "</html>";
             return adminForm;
+        }
+
+        public override bool close()
+        {
+            try
+            {
+                running = false;
+                while (openSockets.Count > 0)
+                {
+                    openSockets[0].forceClose();
+                }
+                Listener.Stop();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void EndRequest(ControlServerRequest request)
+        {
+            openSockets.Remove(request);
         }
     }
 }

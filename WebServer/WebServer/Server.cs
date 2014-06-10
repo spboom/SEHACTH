@@ -12,8 +12,12 @@ namespace Server
     abstract class Server
     {
 
+        public static readonly int MAXOPENSOCKETS = 20;
+        protected bool running;
+
         public Server(int port, string root, string[] defaultPages, bool directoryBrowsing = false)
         {
+            running = true;
             Port = port;
             WebRoot = root;
             DefaultPages = defaultPages;
@@ -32,7 +36,7 @@ namespace Server
             get
             {
                 if (webRequests == null)
-                { webRequests = new Semaphore(20, 20); }
+                { webRequests = new Semaphore(MAXOPENSOCKETS, MAXOPENSOCKETS); }
                 return webRequests;
             }
             set
@@ -66,5 +70,7 @@ namespace Server
 
 
         public int Port { get; set; }
+
+        public abstract bool close();
     }
 }

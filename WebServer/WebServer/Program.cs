@@ -66,7 +66,13 @@ namespace Server
             Logger.Logger logger = Logger.Logger.Instance;
             Console.WriteLine("Logger started...");
 
+            //dbTest();
 
+            Console.Read();
+        }
+
+        private static void dbTest()
+        {
             /////////////////////
 
             // Generate username for test. Usernames must be unique.
@@ -86,8 +92,6 @@ namespace Server
             Console.WriteLine("User doesn't exist: " + verifyUser(user, "abc"));
 
             /////////////////////
-
-            Console.Read();
         }
 
         public static String sha256_hash(String value)
@@ -176,7 +180,7 @@ namespace Server
             reader.Close();
             connection.Close();
 
-            return (dbPassword.Equals(sha256_hash(dbSalt + password))) ? true : false;
+            return (dbPassword.Equals(sha256_hash(dbSalt + password)));
 
         }
 
@@ -206,6 +210,8 @@ namespace Server
 
         public static void updateSettings(int webServerPort, int controlServerPort, string webServerRoot, string[] webServerDefaultPages, bool webServerDirectoryBrowsing)
         {
+            webServer.close();
+            controlServer.close();
             webServer = new WebServer(webServerPort, webServerRoot, webServerDefaultPages, webServerDirectoryBrowsing);
             controlServer = new ControlServer(controlServerPort);
         }
