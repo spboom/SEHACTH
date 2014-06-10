@@ -10,6 +10,8 @@ using Server.Web;
 using Server.Logger;
 using System.IO;
 using Server.DataBaseDataSetTableAdapters;
+using System.Data.SqlClient;
+using System.Security.Cryptography;
 
 namespace Server
 {
@@ -66,33 +68,116 @@ namespace Server
 
             /////////////////////
 
-            Console.WriteLine("Database Test START");
+            // Generate username for test. Usernames must be unique.
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var user = new string(
+                Enumerable.Repeat(chars, 8)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
 
-            DataBaseDataSet dataBaseDataSet = new DataBaseDataSet();
-            DataBaseDataSet.UserRow newUserRow = dataBaseDataSet.User.NewUserRow();
+            // Add new user
+            Console.WriteLine("\nUser added: " + user);
+            newUser(user, "p@$$w0rd");
 
-            newUserRow.UserName = "user1";
-            newUserRow.Password = "aaa";
-            newUserRow.Salt = "bbb";
-            newUserRow.FirstName = "";
-            newUserRow.MiddleName = "";
-            newUserRow.LastName = "";
-            newUserRow.Role_Id = 1;
-
-            dataBaseDataSet.User.Rows.Add(newUserRow);
-
-            Console.WriteLine(dataBaseDataSet.User.Count());
-
-            DataBaseDataSetTableAdapters.UserTableAdapter userTableAdapter = new UserTableAdapter();
-            userTableAdapter.Update(dataBaseDataSet.User);
-
-            Console.WriteLine("Database Test END");
+            // Check if user exists
+            Console.WriteLine("User exists: " + checkUser(user, "p@$$w0rd"));
+            Console.WriteLine("User doesn't exist: " + checkUser(user, "abc"));
 
             /////////////////////
 
 
-
             Console.Read();
+        }
+
+        public static String sha256_hash(String value)
+        {
+            StringBuilder Sb = new StringBuilder();
+
+            using (SHA256 hash = SHA256Managed.Create())
+            {
+                Encoding enc = Encoding.UTF8;
+                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+
+                foreach (Byte b in result)
+                    Sb.Append(b.ToString("x2"));
+            }
+
+            return Sb.ToString();
+        }
+
+        // new user
+        public static void newUser(String username, String password)
+        {
+            SqlConnection conn = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
+            String sql = "INSERT INTO [User] (UserName, Password, Salt, FirstName, MiddleName, LastName, Role_id) VALUES (@username, @password, @salt, @firstname, @middlename, @lastname, @roleId)";
+            SqlCommand comm = new SqlCommand(sql, conn);
+
+            // Generate salt value
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var result = new string(
+                Enumerable.Repeat(chars, 20)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
+            var salt = sha256_hash(result);
+
+            var hashed_password = sha256_hash(salt + password);
+
+            comm.Parameters.AddWithValue("@username", username);
+            comm.Parameters.AddWithValue("@password", hashed_password);
+            comm.Parameters.AddWithValue("@salt", salt);
+
+            comm.Parameters.AddWithValue("@firstname", "Bob");
+            comm.Parameters.AddWithValue("@middlename", "");
+            comm.Parameters.AddWithValue("@lastname", "Smith");
+
+            comm.Parameters.AddWithValue("@roleId", 1);
+
+            try
+            {
+                conn.Open();
+                comm.ExecuteNonQuery();
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        // check user
+        public static Boolean checkUser(String username, String password)
+        {
+            SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
+            SqlCommand command = new SqlCommand();
+            SqlDataReader reader;
+
+            command.Connection = connection;
+            command.CommandText = "SELECT Password, Salt FROM [User] WHERE UserName = @username";
+            command.Parameters.AddWithValue("@username", username);
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            string dbPassword = "";
+            string dbSalt = "";
+
+            while (reader.Read())
+            {
+                dbPassword = reader["Password"].ToString();
+                dbSalt = reader["Salt"].ToString();
+            }
+
+            reader.Close();
+            connection.Close();
+
+            return (dbPassword.Equals(sha256_hash(dbSalt + password))) ? true : false;
+
         }
     }
 }
