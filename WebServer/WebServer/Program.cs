@@ -20,6 +20,7 @@ namespace Server
 
         private static WebServer webServer;
         private static ControlServer controlServer;
+        public static readonly string settingsFilePath = @"Control/Settings.xml";
         static void Main(string[] args)
         {
             initServer();
@@ -33,7 +34,7 @@ namespace Server
             bool directoryBrowsing;
 
             XmlDocument settingsDoc = new XmlDocument();
-            settingsDoc.Load(@"Control/Settings.xml");
+            settingsDoc.Load(settingsFilePath);
 
             XmlElement settingsElement = settingsDoc.DocumentElement;
 
@@ -81,11 +82,10 @@ namespace Server
             newUser(user, "p@$$w0rd");
 
             // Check if user exists
-            Console.WriteLine("User exists: " + checkUser(user, "p@$$w0rd"));
-            Console.WriteLine("User doesn't exist: " + checkUser(user, "abc"));
+            Console.WriteLine("User exists: " + verifyUser(user, "p@$$w0rd"));
+            Console.WriteLine("User doesn't exist: " + verifyUser(user, "abc"));
 
             /////////////////////
-
 
             Console.Read();
         }
@@ -151,7 +151,7 @@ namespace Server
         }
 
         // check user
-        public static Boolean checkUser(String username, String password)
+        public static Boolean verifyUser(String username, String password)
         {
             SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
             SqlCommand command = new SqlCommand();
@@ -179,5 +179,38 @@ namespace Server
             return (dbPassword.Equals(sha256_hash(dbSalt + password))) ? true : false;
 
         }
+
+        public static int WebServerPort { get { return webServer.Port; } }
+
+        public static int ControlServerPort { get { return controlServer.Port; } }
+
+        public static string WebServerRoot { get { return webServer.WebRoot; } }
+
+        //TODO dicide if needs to be moved
+        public static string WebServerDefaultPages
+        {
+            get
+            {
+                string defaultPages = "";
+                foreach (string defaultPage in webServer.DefaultPages)
+                {
+                    if (defaultPages != "")
+                    {
+                        defaultPages += ";";
+                    }
+                    defaultPages += defaultPage;
+                }
+                return defaultPages;
+            }
+        }
+
+        public static void updateSettings(int webServerPort, int controlServerPort, string webServerRoot, string[] webServerDefaultPages, bool webServerDirectoryBrowsing)
+        {
+            webServer = new WebServer(webServerPort, webServerRoot, webServerDefaultPages, webServerDirectoryBrowsing);
+            controlServer = new ControlServer(controlServerPort);
+        }
+
+
+        public static bool webServerDirectoryBrowsing { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using Server.Logger;
 
 namespace Server.Web
 {
-    class WebServerRequest : WebRequest
+    class WebServerRequest : WebRequest<WebServer>
     {
         public WebServerRequest(Socket socket, WebServer server)
             : base(socket, server)
@@ -22,15 +22,16 @@ namespace Server.Web
 
         protected override void send(string[] sBufferArray)
         {
-            string path = getFile(sBufferArray[1]);
+            string relativePath = sBufferArray[0].Split(' ')[1];
+            string path = getFile(relativePath);
             bool isDir = Directory.Exists(path);
-            if (isDir && Server.DirBrowsing)
+            if (isDir && ServerInstance.DirBrowsing)
             {
                 sendFolder(path);
             }
             else if (File.Exists(path))
             {
-                sendFile(sBufferArray[1]);
+                sendFile(relativePath);
             }
             else
             {
@@ -40,7 +41,7 @@ namespace Server.Web
 
         private void sendFolder(string path)
         {
-            string head, body, html, pathFromRoot = path.Substring(Server.WebRoot.Length);
+            string head, body, html, pathFromRoot = path.Substring(ServerInstance.WebRoot.Length);
             if (pathFromRoot.Equals("/"))
             {
                 pathFromRoot = "";
