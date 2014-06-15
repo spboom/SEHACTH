@@ -20,7 +20,7 @@ namespace Server.Control
 
         private static List<ControlServerRequest> openSockets;
 
-        public ControlServer(int port)
+        public ControlServer(int port) 
             : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
         {
             openSockets = new List<ControlServerRequest>(Server.MAXOPENSOCKETS);
@@ -101,6 +101,50 @@ namespace Server.Control
             adminForm += "  </body>\n";
             adminForm += "</html>";
             return adminForm;
+        }
+
+        public string getLoginForm()
+        {
+            string loginForm = "";
+
+            loginForm += "<html>";
+            loginForm += "  <head><title>Login</title></head>";
+            loginForm += "  <body>";
+            loginForm += "      <div>";
+            loginForm += "          <h1>Login</h1>";
+            loginForm += "          <form  method=\"post\">";
+            loginForm += "              <input type=\"text\" name=\"username\" placeholder=\"Username\"><br>";
+            loginForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
+            loginForm += "              <input type=\"submit\" name=\"login\" value=\"login\"><br>";
+            loginForm += "          </form>";
+            loginForm += "          <a href=\"/register\">Register user</a>";
+            loginForm += "      </div>";
+            loginForm += "  </body>";
+            loginForm += "</html>";
+
+            return loginForm;
+        }
+
+        public string getRegisterForm()
+        {
+            string registerForm = "";
+
+            registerForm += "<html>";
+            registerForm += "  <head><title>Register</title></head>";
+            registerForm += "  <body>";
+            registerForm += "      <div>";
+            registerForm += "          <h1>Register</h1>";
+            registerForm += "          <form  method=\"post\">";
+            registerForm += "              <input type=\"text\" name=\"username\" placeholder=\"Username\"><br>";
+            registerForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
+            registerForm += "              <input type=\"password\" name=\"confirm_password\" placeholder=\"Confirm Password\"><br>";
+            registerForm += "              <input type=\"submit\" name=\"register\" value=\"Register\">";
+            registerForm += "          </form>";
+            registerForm += "      </div>";
+            registerForm += "  </body>";
+            registerForm += "</html>";
+
+            return registerForm;
         }
 
         public override bool close()
