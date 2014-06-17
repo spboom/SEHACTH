@@ -150,6 +150,14 @@ namespace Server
             Socket.Send(messageByteArray);
         }
 
+        protected void sendRedirect(string url, int statusCode, string statusMessage)
+        {
+            String header = "HTTP/1.1 " + statusCode + statusMessage +"\r\n";
+            header += "Location: " + url + "\r\n";
+            Socket.Send(ASCIIEncoding.ASCII.GetBytes(header));
+            close();
+        }
+
         protected virtual string getFile(string path)
         {
             if (path == "/" && !ServerInstance.DirBrowsing)
