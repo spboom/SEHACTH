@@ -77,6 +77,7 @@ namespace Server
         protected virtual void POST(string[] sBufferArray)
         {
             send(sBufferArray);
+        
         }
         protected virtual void GET(string[] sBufferArray)
         {
@@ -151,9 +152,9 @@ namespace Server
             Socket.Send(messageByteArray);
         }
 
-        protected void sendRedirect(string url, int statusCode, string statusMessage)
+        protected void sendRedirect(string url)
         {
-            String header = "HTTP/1.1 " + statusCode + statusMessage + "\r\n";
+            String header = "HTTP/1.1 301 Redirect\r\n";
             header += "Location: " + url + "\r\n";
             Socket.Send(ASCIIEncoding.ASCII.GetBytes(header));
             close();
