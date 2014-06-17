@@ -81,11 +81,12 @@ namespace Server.Control
                 // create session
                 // example: web.Session["username"] = web.Post("username");
                 //socket.Session...
-                sendString(ServerInstance.getAdminForm(), 200, "OK");
+
+                sendRedirect("/");
             }
             else
             {
-                sendString(ServerInstance.getLoginForm(), 200, "OK");
+                sendRedirect("/login");
             }
         }
 
@@ -103,10 +104,11 @@ namespace Server.Control
                 {
                     Console.WriteLine("User " + username + " created");
                 }
+                sendRedirect("/register");
             }
             else
             {
-                sendString(ServerInstance.getAdminForm(), 200, "OK");
+                sendRedirect("/register");
             }
         }
 
@@ -121,6 +123,11 @@ namespace Server.Control
             if (path == "/") { sendString(ServerInstance.getAdminForm(), 200, "OK"); }
             else if (path == "/login") { sendString(ServerInstance.getLoginForm(), 200, "OK"); }
             else if (path == "/register") { sendString(ServerInstance.getRegisterForm(), 200, "OK"); }
+            else if (path.Contains("/register/remove/")) { 
+                string user = path.Split('/')[3];
+                if (user != "") { Authentication.removeUser(user); }
+                sendRedirect("/register");
+            }
             else { base.sendFile(path); }
         }
 

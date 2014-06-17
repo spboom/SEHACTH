@@ -119,5 +119,19 @@ namespace Server.Control
 
             return users;
         }
+
+        public static void removeUser(string username)
+        {
+            SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
+            SqlCommand command = new SqlCommand();
+
+            command.Connection = connection;
+            command.CommandText = "DELETE FROM [Users] WHERE UserName = @username";
+            command.Parameters.AddWithValue("@username", username);
+
+            connection.Open();
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
     }
 }

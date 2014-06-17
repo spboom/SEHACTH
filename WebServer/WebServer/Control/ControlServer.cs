@@ -146,7 +146,7 @@ namespace Server.Control
             registerForm += "          <div>";
             foreach (String user in users)
             {
-                registerForm += "          " + user + " <a href=\"\">x</a><br>";
+                registerForm += "          " + user + " <a href=\"/register/remove/"+ user +"\">x</a><br>";
             }
             registerForm += "          </div>";
 
