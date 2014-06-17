@@ -28,7 +28,7 @@ namespace Server.Control
             {
                 sendError(400, "Bad Data");
             }
-            SendHeader(0, 200, "POST OK");
+            SendHeader(0, 200, "POST OK", null);
         }
 
         private void postAdminForm(string[] sBufferArray)

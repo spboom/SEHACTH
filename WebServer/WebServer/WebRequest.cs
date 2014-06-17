@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 using Server.Logger;
 
 namespace Server
@@ -123,7 +124,7 @@ namespace Server
                         {
                             messageLength = (int)info.Length;
                         }
-                        SendHeader(messageLength, 200, "OK");
+                        SendHeader(messageLength, 200, "OK", GetMimeType(info));
                         Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
                     }
                 }
@@ -146,13 +147,13 @@ namespace Server
         protected void sendString(string message, int statusCode, string statusMessage)
         {
             byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
-            SendHeader(messageByteArray.Length, statusCode, statusMessage);
+            SendHeader(messageByteArray.Length, statusCode, statusMessage, null);
             Socket.Send(messageByteArray);
         }
 
         protected void sendRedirect(string url, int statusCode, string statusMessage)
         {
-            String header = "HTTP/1.1 " + statusCode + statusMessage +"\r\n";
+            String header = "HTTP/1.1 " + statusCode + statusMessage + "\r\n";
             header += "Location: " + url + "\r\n";
             Socket.Send(ASCIIEncoding.ASCII.GetBytes(header));
             close();
@@ -174,19 +175,38 @@ namespace Server
             }
             return ServerInstance.WebRoot + path;
         }
-        public void SendHeader(int iTotBytes, int statusCode, string statusMessage)
+        public void SendHeader(int iTotBytes, int statusCode, string statusMessage, string mimeType)
         {
             String sBuffer = "";
-            // if Mime type is not provided set default to text/html
+
+            if (mimeType == null || mimeType.Length == 0)
+            {
+                mimeType = "text/html";
+            }
 
             sBuffer = sBuffer + "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n";
             sBuffer = sBuffer + "Server: My Little Server\r\n";
+            sBuffer = sBuffer + "Content-Type: " + mimeType;
             sBuffer = sBuffer + "Accept-Ranges: bytes\r\n";
             sBuffer = sBuffer + "Content-Length: " + iTotBytes + "\r\n\r\n";
             Byte[] bSendData = Encoding.ASCII.GetBytes(sBuffer);
             Socket.Send(Encoding.ASCII.GetBytes(sBuffer), Encoding.ASCII.GetBytes(sBuffer).Length, SocketFlags.None);
         }
 
+        public static string GetMimeType(FileInfo fileInfo)
+        {
+            string mimeType = "application/unknown";
+            RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(fileInfo.Extension.ToLower());
+
+            if (regKey != null)
+            {
+                object contentType = regKey.GetValue("Content Type");
+                if (contentType != null)
+                    mimeType = contentType.ToString();
+            }
+
+            return mimeType;
+        }
         public virtual void close()
         {
             try
