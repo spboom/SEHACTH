@@ -75,10 +75,12 @@ namespace Server.Control
             string username = formData[0].Split('=')[1];
             string password = formData[1].Split('=')[1];
 
-            if (verifyUser(username, password))
+            if (Authentication.verifyUser(username, password))
             {
                 // change path (/login -> /) (not working)
                 // create session
+                // example: web.Session["username"] = web.Post("username");
+                //socket.Session...
                 sendString(ServerInstance.getAdminForm(), 200, "OK");
             }
             else
@@ -96,11 +98,11 @@ namespace Server.Control
 
             if (password == confirmPassword)
             {
-                newUser(username, password);
-                Console.WriteLine("User " + username + " created: " + verifyUser(username, password));
-
-                // change path (/register -> /login) (not working)
-                sendString(ServerInstance.getLoginForm(), 200, "OK");
+                // if not true: bad data? (exception)
+                if (Authentication.newUser(username, password))
+                {
+                    Console.WriteLine("User " + username + " created");
+                }
             }
             else
             {
@@ -128,94 +130,5 @@ namespace Server.Control
             ServerInstance.EndRequest(this);
         }
 
-        public static void newUser(String username, String password)
-        {
-            SqlConnection conn = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
-            String sql = "INSERT INTO [User] (UserName, Password, Salt, FirstName, MiddleName, LastName, Role_id) VALUES (@username, @password, @salt, @firstname, @middlename, @lastname, @roleId)";
-            SqlCommand comm = new SqlCommand(sql, conn);
-
-            // Generate salt value
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
-            var result = new string(
-                Enumerable.Repeat(chars, 20)
-                          .Select(s => s[random.Next(s.Length)])
-                          .ToArray());
-            var salt = sha256_hash(result);
-
-            var hashed_password = sha256_hash(salt + password);
-
-            comm.Parameters.AddWithValue("@username", username);
-            comm.Parameters.AddWithValue("@password", hashed_password);
-            comm.Parameters.AddWithValue("@salt", salt);
-
-            // change
-            comm.Parameters.AddWithValue("@firstname", "Bob");
-            comm.Parameters.AddWithValue("@middlename", "");
-            comm.Parameters.AddWithValue("@lastname", "Smith");
-
-            // Support
-            comm.Parameters.AddWithValue("@roleId", 2);
-
-            try
-            {
-                conn.Open();
-                comm.ExecuteNonQuery();
-                conn.Close();
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-
-        public static String sha256_hash(String value)
-        {
-            StringBuilder Sb = new StringBuilder();
-
-            using (SHA256 hash = SHA256Managed.Create())
-            {
-                Encoding enc = Encoding.UTF8;
-                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
-
-                foreach (Byte b in result)
-                    Sb.Append(b.ToString("x2"));
-            }
-
-            return Sb.ToString();
-        }
-
-        public static Boolean verifyUser(String username, String password)
-        {
-            SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
-            SqlCommand command = new SqlCommand();
-            SqlDataReader reader;
-
-            command.Connection = connection;
-            command.CommandText = "SELECT Password, Salt FROM [User] WHERE UserName = @username";
-            command.Parameters.AddWithValue("@username", username);
-
-            connection.Open();
-            reader = command.ExecuteReader();
-
-            string dbPassword = "";
-            string dbSalt = "";
-
-            while (reader.Read())
-            {
-                dbPassword = reader["Password"].ToString();
-                dbSalt = reader["Salt"].ToString();
-            }
-
-            reader.Close();
-            connection.Close();
-
-            return (dbPassword.Equals(sha256_hash(dbSalt + password)));
-
-        }
     }
 }

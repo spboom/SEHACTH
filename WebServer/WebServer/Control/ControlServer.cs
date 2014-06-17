@@ -127,6 +127,8 @@ namespace Server.Control
 
         public string getRegisterForm()
         {
+            List<String> users = Authentication.allUsers();
+
             string registerForm = "";
 
             registerForm += "<html>";
@@ -135,11 +137,19 @@ namespace Server.Control
             registerForm += "      <div>";
             registerForm += "          <h1>Register</h1>";
             registerForm += "          <form  method=\"post\">";
-            registerForm += "              <input type=\"text\" name=\"username\" placeholder=\"Username\"><br>";
-            registerForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
-            registerForm += "              <input type=\"password\" name=\"confirm_password\" placeholder=\"Confirm Password\"><br>";
+            registerForm += "              <input type=\"text\" name=\"username\" placeholder=\"Username\">";
+            registerForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\">";
+            registerForm += "              <input type=\"password\" name=\"confirm_password\" placeholder=\"Confirm Password\">";
             registerForm += "              <input type=\"submit\" name=\"register\" value=\"Register\">";
             registerForm += "          </form>";
+
+            registerForm += "          <div>";
+            foreach (String user in users)
+            {
+                registerForm += "          " + user + " <a href=\"\">x</a><br>";
+            }
+            registerForm += "          </div>";
+
             registerForm += "      </div>";
             registerForm += "  </body>";
             registerForm += "</html>";
