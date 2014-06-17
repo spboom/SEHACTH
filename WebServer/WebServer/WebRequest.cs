@@ -186,7 +186,7 @@ namespace Server
 
             sBuffer = sBuffer + "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n";
             sBuffer = sBuffer + "Server: My Little Server\r\n";
-            sBuffer = sBuffer + "Content-Type: " + mimeType;
+            sBuffer = sBuffer + "Content-Type: " + mimeType + "\r\n";
             sBuffer = sBuffer + "Accept-Ranges: bytes\r\n";
             sBuffer = sBuffer + "Content-Length: " + iTotBytes + "\r\n\r\n";
             Byte[] bSendData = Encoding.ASCII.GetBytes(sBuffer);
