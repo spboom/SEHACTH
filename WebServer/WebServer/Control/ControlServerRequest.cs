@@ -120,7 +120,7 @@ namespace Server.Control
 
         public override void sendFile(string path)
         {
-            if (path == "/") { sendString(ServerInstance.getAdminForm(), 200, "OK"); }
+            if (path == "/") { sendRedirect(ServerInstance.getLOGIN); }
             else if (path == ServerInstance.getLOGIN) { sendString(ServerInstance.getLoginForm(), 200, "OK"); }
             else if (path == ServerInstance.getUSERMANAGER) { sendString(ServerInstance.getRegisterForm(), 200, "OK"); }
             else if (path.Contains(ServerInstance.getUSERMANAGER + "/remove/")) { 
