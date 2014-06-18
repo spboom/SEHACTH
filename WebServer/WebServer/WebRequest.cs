@@ -88,7 +88,7 @@ namespace Server
         protected virtual void POST(string[] sBufferArray)
         {
             send(sBufferArray);
-        
+
         }
         protected virtual void GET(string[] sBufferArray)
         {
@@ -135,9 +135,14 @@ namespace Server
                         if (info.Exists)
                         {
                             messageLength = (int)info.Length;
+
+                            SendHeader(messageLength, 200, "OK", GetMimeType(info));
+                            Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
                         }
-                        SendHeader(messageLength, 200, "OK", GetMimeType(info));
-                        Socket.SendFile(filePath, null, null, TransmitFileOptions.Disconnect);
+                        else
+                        {
+                            sendError(404, "File Not Found");
+                        }
                     }
                 }
                 else
@@ -159,14 +164,20 @@ namespace Server
         protected void sendString(string message, int statusCode, string statusMessage)
         {
             byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
+            SendHeader(messageByteArray.Length, statusCode, statusMessage, "text/plain");
+            Socket.Send(messageByteArray);
+        }
+        protected void sendHTMLString(string message, int statusCode, string statusMessage)
+        {
+            byte[] messageByteArray = Encoding.ASCII.GetBytes(message);
             SendHeader(messageByteArray.Length, statusCode, statusMessage, null);
             Socket.Send(messageByteArray);
         }
-
         protected void sendRedirect(string url)
         {
             String header = "HTTP/1.1 301 Redirect\r\n";
             header += "Location: " + url + "\r\n";
+            LogItem.responseCode = 301;
             Socket.Send(ASCIIEncoding.ASCII.GetBytes(header));
             close();
         }
@@ -189,6 +200,8 @@ namespace Server
         }
         public void SendHeader(int iTotBytes, int statusCode, string statusMessage, string mimeType)
         {
+            LogItem.responseCode = statusCode;
+
             String sBuffer = "";
 
             if (mimeType == null || mimeType.Length == 0)
