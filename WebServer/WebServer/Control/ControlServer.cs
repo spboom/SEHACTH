@@ -13,11 +13,12 @@ namespace Server.Control
 {
     class ControlServer : Server
     {
-        private static readonly string CONTROLROOT = @"./Control";
-        private static readonly string ADMINFORM = @"/settings";
-        private static readonly string LOGIN = @"/login";
-        private static readonly string USERMANAGER = @"/usermanager";
-        private static string[] CONTROLDEFAULTPAGES = new string[] { LOGIN };
+        public static readonly string CONTROLROOT = @"./Control";
+        public static readonly string ADMINFORM = @"/settings";
+        public static readonly string LOGIN = @"/login";
+        public static readonly string LOG = @"/log";
+        public static readonly string USERMANAGER = @"/usermanager";
+        public static string[] CONTROLDEFAULTPAGES = new string[] { LOGIN };
         public static readonly bool CONTROLDIRECTORYBROWSING = false;
         private static readonly Semaphore settingsFile = new Semaphore(1, 1);
 
@@ -181,29 +182,6 @@ namespace Server.Control
         public void EndRequest(ControlServerRequest request)
         {
             openSockets.Remove(request);
-        }
-
-        public string[] getCONTROLDEFAULTPAGES
-        {
-            get { return ControlServer.CONTROLDEFAULTPAGES; }
-            set { ControlServer.CONTROLDEFAULTPAGES = value; }
-        }
-        public string getCONTROLROOT
-        {
-            get { return ControlServer.CONTROLROOT; }
-        }
-        public string getADMINFORM
-        {
-            get { return ControlServer.ADMINFORM; }
-        }
-        public string getLOGIN
-        {
-            get { return ControlServer.LOGIN; }
-        }
-
-        public string getUSERMANAGER
-        {
-            get { return ControlServer.USERMANAGER; }
         }
     }
 }

@@ -102,6 +102,7 @@ namespace Server.Logger
             readPos %= BUFFLENG;
             canAdd.Release();
             busy.Release();
+            Console.WriteLine(message);
             return message;
         }
     }

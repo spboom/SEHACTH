@@ -21,8 +21,8 @@ namespace Server.Control
                 string path = sBufferArray[0].Split(' ')[1];
 
                 if (path == "/") { postAdminForm(sBufferArray); }
-                else if (path == ServerInstance.getLOGIN) { postLoginForm(sBufferArray); }
-                else if (path == ServerInstance.getUSERMANAGER) { postRegisterForm(sBufferArray); }
+                else if (path == ControlServer.LOGIN) { postLoginForm(sBufferArray); }
+                else if (path == ControlServer.USERMANAGER) { postRegisterForm(sBufferArray); }
             }
             catch (Exception)
             {
@@ -82,11 +82,11 @@ namespace Server.Control
                 // example: web.Session["username"] = web.Post("username");
                 //socket.Session...
 
-                sendRedirect(ServerInstance.getADMINFORM);
+                sendRedirect(ControlServer.ADMINFORM);
             }
             else
             {
-                sendRedirect(ServerInstance.getLOGIN);
+                sendRedirect(ControlServer.LOGIN);
             }
         }
 
@@ -104,29 +104,30 @@ namespace Server.Control
                 {
                     Console.WriteLine("User " + username + " created");
                 }
-                sendRedirect(ServerInstance.getUSERMANAGER);
+                sendRedirect(ControlServer.USERMANAGER);
             }
             else
             {
-                sendRedirect(ServerInstance.getUSERMANAGER);
+                sendRedirect(ControlServer.USERMANAGER);
             }
         }
 
         protected override void GET(string[] sBufferArray)
         {
             base.GET(sBufferArray);
-            //sendString(Logger.Logger.Instance.readFile(), "200 OK LOG");
         }
 
         public override void sendFile(string path)
         {
-            if (path == "/") { sendRedirect(ServerInstance.getLOGIN); }
-            else if (path == ServerInstance.getLOGIN) { sendString(ServerInstance.getLoginForm(), 200, "OK"); }
-            else if (path == ServerInstance.getUSERMANAGER) { sendString(ServerInstance.getRegisterForm(), 200, "OK"); }
-            else if (path.Contains(ServerInstance.getUSERMANAGER + "/remove/")) { 
+            if (path == "/") { sendRedirect(ControlServer.LOGIN); }
+            else if (path == ControlServer.LOGIN) { sendHTMLString(ServerInstance.getLoginForm(), 200, "OK"); }
+            else if (path == ControlServer.USERMANAGER) { sendHTMLString(ServerInstance.getRegisterForm(), 200, "OK"); }
+            else if (path == ControlServer.LOG) { sendString(Logger.Logger.Instance.readFile(), 200, "OK LOG"); }
+            else if (path.Contains(ControlServer.USERMANAGER + "/remove/"))
+            {
                 string user = path.Split('/')[3];
                 if (user != "") { Authentication.removeUser(user); }
-                sendRedirect(ServerInstance.getUSERMANAGER);
+                sendRedirect(ControlServer.USERMANAGER);
             }
             else { base.sendFile(path); }
         }
@@ -139,7 +140,7 @@ namespace Server.Control
 
         protected override string getFile(string path)
         {
-            if(path == "/")
+            if (path == "/")
             {
                 return ServerInstance.DefaultPages[0];
             }
