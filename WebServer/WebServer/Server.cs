@@ -12,7 +12,7 @@ namespace Server
 {
     abstract class Server
     {
-        private Dictionary<String, Session> sessions = new Dictionary<string,Session>();
+        private Dictionary<String, Session> sessions = new Dictionary<string, Session>();
         public static readonly int MAXOPENSOCKETS = 20;
         protected bool running;
 
@@ -37,17 +37,19 @@ namespace Server
             get
             {
                 if (webRequests == null)
-                { webRequests = new Semaphore(MAXOPENSOCKETS, MAXOPENSOCKETS); }
+                {
+                    webRequests = new Semaphore(MAXOPENSOCKETS, MAXOPENSOCKETS);
+                }
                 return webRequests;
             }
-            set
+            private set
             {
                 webRequests = value;
             }
         }
 
 
-        public Session FindSession<T>(WebRequest<T> request, out bool newSession) where T:Server
+        public Session FindSession<T>(WebRequest<T> request, out bool newSession) where T : Server
         {
             lock (sessions)
             {

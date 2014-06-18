@@ -16,16 +16,10 @@ namespace Server.Control.SessionControl
             String sql = "INSERT INTO [Users] (UserName, Password, Salt, Role_id) VALUES (@username, @password, @salt, @roleId)";
             SqlCommand comm = new SqlCommand(sql, conn);
 
-            // Generate salt value
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*";
-            var random = new Random();
-            var result = new string(
-                Enumerable.Repeat(chars, 20)
-                          .Select(s => s[random.Next(s.Length)])
-                          .ToArray());
-            var salt = sha256_hash(result);
+            string result = Authentication.randomString(20);
+            string salt = sha256_hash(result);
 
-            var hashed_password = sha256_hash(salt + password);
+            string hashed_password = sha256_hash(salt + password);
 
             comm.Parameters.AddWithValue("@username", username);
             comm.Parameters.AddWithValue("@password", hashed_password);
@@ -48,6 +42,23 @@ namespace Server.Control.SessionControl
             }
 
             return verifyUser(username, password) ? true : false;
+        }
+
+        private static string randomString(int length)
+        {
+            if (length <= 0)
+            {
+                length = 20;
+            }
+            // Generate salt value
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*";
+            Random random = new Random();
+            string result = new string(
+                Enumerable.Repeat(chars, length)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
+
+            return result;
         }
 
         public static Boolean verifyUser(String username, String password)

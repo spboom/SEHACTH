@@ -56,13 +56,13 @@ namespace Server.Web
             }
             body += @"</lu></body>";
             html = @"<html>" + head + body + @"</html>";
-            sendString(html, 200, "OK");
+            sendHTMLString(html, 200, "OK");
         }
 
         public override void close()
         {
-            base.close();
             ServerInstance.EndRequest(this);
+            base.close();
         }
     }
 }

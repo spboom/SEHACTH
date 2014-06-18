@@ -21,7 +21,7 @@ namespace Server.Control
             {
                 string path = sBufferArray[0].Split(' ')[1];
 
-                if (path == "/") { postAdminForm(sBufferArray); }
+                if (path == ControlServer.ADMINFORM) { postAdminForm(sBufferArray); }
                 else if (path == ControlServer.LOGIN) { postLoginForm(sBufferArray); }
                 else if (path == ControlServer.USERMANAGER) { postRegisterForm(sBufferArray); }
             }
@@ -36,7 +36,7 @@ namespace Server.Control
         {
             int webPort = -1, controlPort = -1;
             string webRoot = null, defaultPage = null;
-            bool dirBrowsing = false;
+            bool dirBrowsing = false, post = true;
             string[] valueString = sBufferArray[sBufferArray.Length - 1].Split('&');
             string[][] values = new string[valueString.Length][];
             for (int i = 0; i < valueString.Length; i++)
@@ -59,15 +59,29 @@ namespace Server.Control
                     case "dirBrowsing":
                         dirBrowsing = values[i][1] == "on";
                         break;
+                    case "submit":
+                        post = true;
+                        break;
+                    case "log":
+                        post = false;
+                        break;
                     default:
                         break;
                 }
             }
-            webRoot = Uri.UnescapeDataString(webRoot);
-            defaultPage = Uri.UnescapeDataString(defaultPage);
-            string[] defaultPageArray = defaultPage.Split(';');
 
-            ServerInstance.saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
+            if (post)
+            {
+                webRoot = Uri.UnescapeDataString(webRoot);
+                defaultPage = Uri.UnescapeDataString(defaultPage);
+                string[] defaultPageArray = defaultPage.Split(';');
+
+                ServerInstance.saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
+            }
+            else
+            {
+                sendRedirect(ControlServer.LOG);
+            }
         }
 
         private void postLoginForm(string[] sBufferArray)
@@ -78,11 +92,6 @@ namespace Server.Control
 
             if (Authentication.verifyUser(username, password))
             {
-                // change path (/login -> /) (not working)
-                // create session
-                // example: web.Session["username"] = web.Post("username");
-                //socket.Session...
-
                 sendRedirect(ControlServer.ADMINFORM);
             }
             else
@@ -93,22 +102,67 @@ namespace Server.Control
 
         private void postRegisterForm(string[] sBufferArray)
         {
-            string[] formData = sBufferArray[12].Split('&');
-            string username = formData[0].Split('=')[1];
-            string password = formData[1].Split('=')[1];
-            string confirmPassword = formData[2].Split('=')[1];
 
-            if (password == confirmPassword)
+            //"James=on&Sjors=on&remove=Verwijder"
+            // split on &
+            // foreach split on =
+            // if [split.length][1] == Verwijder
+            // if [1] == on
+
+            string[] data = sBufferArray[sBufferArray.Length - 1].Split('&');
+            string[][] values = new string[data.Length][];
+            bool add = false, remove = false;
+            for (int i = 0; i < data.Length; i++)
             {
-                // if not true: bad data? (exception)
-                if (Authentication.newUser(username, password))
+                values[i] = data[i].Split('=');
+                if (values[i][0] == "remove")
                 {
-                    Console.WriteLine("User " + username + " created");
+                    remove = true;
                 }
-                sendRedirect(ControlServer.USERMANAGER);
+                else if (values[i][0] == "add")
+                {
+                    add = true;
+                }
             }
-            else
+            if (add && remove)
             {
+                sendError(400, "Bad Data");
+            }
+            else if (add)
+            {
+                string[] formData = sBufferArray[12].Split('&');
+                string username = formData[0].Split('=')[1];
+                string password = formData[1].Split('=')[1];
+                string confirmPassword = formData[2].Split('=')[1];
+
+                if (password == confirmPassword && password != "" && confirmPassword != "" && username != "")
+                {
+                    // if not true: bad data? (exception)
+                    if (Authentication.newUser(username, password))
+                    {
+                        Console.WriteLine("User " + username + " created");
+                    }
+                    else { sendError(500, "Failed to create user"); }
+
+                    sendRedirect(ControlServer.USERMANAGER);
+                }
+                else
+                {
+                    sendError(400, "Bad Data");
+                }
+            }
+            else if (remove)
+            {
+                int max = values.GetUpperBound(0);
+                for (int i = 0; i < max; i++)
+                {
+                    if (values[i][0] != "admin" && values[i][1] == "on")
+                    {
+                        Authentication.removeUser(values[i][0]);
+                    }
+
+
+                }
                 sendRedirect(ControlServer.USERMANAGER);
             }
         }
@@ -124,19 +178,14 @@ namespace Server.Control
             else if (path == ControlServer.LOGIN) { sendHTMLString(ServerInstance.getLoginForm(), 200, "OK"); }
             else if (path == ControlServer.USERMANAGER) { sendHTMLString(ServerInstance.getRegisterForm(), 200, "OK"); }
             else if (path == ControlServer.LOG) { sendString(Logger.Logger.Instance.readFile(), 200, "OK LOG"); }
-            else if (path.Contains(ControlServer.USERMANAGER + "/remove/"))
-            {
-                string user = path.Split('/')[3];
-                if (user != "") { Authentication.removeUser(user); }
-                sendRedirect(ControlServer.USERMANAGER);
-            }
+            else if (path == ControlServer.ADMINFORM) { sendHTMLString(ServerInstance.getAdminForm(), 200, "OK"); }
             else { base.sendFile(path); }
         }
 
         public override void close()
         {
-            base.close();
             ServerInstance.EndRequest(this);
+            base.close();
         }
 
         protected override string getFile(string path)

@@ -70,7 +70,10 @@ namespace Server.Web
 
         public void EndRequest(WebServerRequest request)
         {
-            openSockets.Remove(request);
+            lock (openSockets)
+            {
+                openSockets.Remove(request);
+            }
         }
     }
 }

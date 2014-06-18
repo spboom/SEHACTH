@@ -50,8 +50,8 @@ namespace Server
                 string[] sBufferArray = sBuffer.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
                 string[] request = sBufferArray[0].Split(' ');
-                
-                for (int j = 1; j < sBufferArray.Length; j++ )
+
+                for (int j = 1; j < sBufferArray.Length; j++)
                 {
                     if (!(request[0] == "POST" && sBufferArray.Length - 1 == j))
                     {
@@ -78,10 +78,7 @@ namespace Server
             { }
             finally
             {
-                if (Socket.Connected)
-                {
-                    close();
-                }
+                close();
             }
         }
 
@@ -161,7 +158,7 @@ namespace Server
         {
             String completeMessage = statusCode + " " + statusMessage;
             string html = @"<html><head><title>" + statusMessage + @"</title></head><body><h1>" + statusMessage + @"</h1></body></html>";
-            sendString(html, statusCode, statusMessage);
+            sendHTMLString(html, statusCode, statusMessage);
         }
 
         protected void sendString(string message, int statusCode, string statusMessage)
@@ -182,7 +179,6 @@ namespace Server
             header += "Location: " + url + "\r\n";
             LogItem.responseCode = 301;
             Socket.Send(ASCIIEncoding.ASCII.GetBytes(header));
-            close();
         }
 
         protected virtual string getFile(string path)
@@ -248,9 +244,12 @@ namespace Server
                 Socket.Disconnect(false);
                 Socket.Dispose();
                 LogItem.log();
-                Server.WebRequests.Release();
             }
             catch { }
+            finally
+            {
+                Server.WebRequests.Release();
+            }
 
         }
 
