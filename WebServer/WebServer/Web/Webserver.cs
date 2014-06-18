@@ -14,9 +14,6 @@ namespace Server.Web
 {
     class WebServer : Server
     {
-
-        private static List<WebServerRequest> openSockets;
-
         public WebServer(int port, string root, string[] defaultPages, bool directoryBrowsing)
             : base(port, root, defaultPages, directoryBrowsing)
         {
@@ -24,8 +21,6 @@ namespace Server.Web
             {
                 WebRoot = @"./Web";
             }
-
-            openSockets = new List<WebServerRequest>(Server.MAXOPENSOCKETS);
         }
 
         protected override void run()
@@ -47,32 +42,6 @@ namespace Server.Web
                     }
                 }
                 catch { }
-            }
-        }
-
-        public override bool close()
-        {
-            try
-            {
-                running = false;
-                while (openSockets.Count > 0)
-                {
-                    openSockets[0].forceClose();
-                }
-                Listener.Stop();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public void EndRequest(WebServerRequest request)
-        {
-            lock (openSockets)
-            {
-                openSockets.Remove(request);
             }
         }
     }

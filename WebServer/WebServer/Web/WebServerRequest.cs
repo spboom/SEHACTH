@@ -9,7 +9,7 @@ using Server.Logger;
 
 namespace Server.Web
 {
-    class WebServerRequest : WebRequest<WebServer>
+    class WebServerRequest : WebRequest
     {
         public WebServerRequest(Socket socket, WebServer server)
             : base(socket, server)
@@ -29,13 +29,9 @@ namespace Server.Web
             {
                 sendFolder(path);
             }
-            else if (File.Exists(path))
-            {
-                sendFile(relativePath);
-            }
             else
             {
-                sendError(404, "Not Found");
+                sendFile(relativePath);
             }
         }
 

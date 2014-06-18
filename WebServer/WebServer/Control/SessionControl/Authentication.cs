@@ -44,7 +44,7 @@ namespace Server.Control.SessionControl
             return verifyUser(username, password) ? true : false;
         }
 
-        private static string randomString(int length)
+        public static string randomString(int length)
         {
             if (length <= 0)
             {

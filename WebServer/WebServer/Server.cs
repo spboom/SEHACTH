@@ -12,12 +12,15 @@ namespace Server
 {
     abstract class Server
     {
-        private Dictionary<String, Session> sessions = new Dictionary<string, Session>();
+        public Dictionary<String, Session> sessions = new Dictionary<string, Session>();
         public static readonly int MAXOPENSOCKETS = 20;
         protected bool running;
+        protected List<WebRequest> openSockets;
 
         public Server(int port, string root, string[] defaultPages, bool directoryBrowsing = false)
         {
+            openSockets = new List<WebRequest>(Server.MAXOPENSOCKETS);
+
             running = true;
             Port = port;
             WebRoot = root;
@@ -49,7 +52,7 @@ namespace Server
         }
 
 
-        public Session FindSession<T>(WebRequest<T> request, out bool newSession) where T : Server
+        public Session findSession(WebRequest request, out bool newSession)
         {
             lock (sessions)
             {
@@ -84,9 +87,14 @@ namespace Server
                     }
                 }
             }
+            Session session = new Session();
+            do { session.ID = Authentication.randomString(16); } while (sessions.ContainsKey(session.ID));
+            session.IP = request.IP;
+            session.UserAgent = request["User-Agent"];
+            sessions.Add(session.ID, session);
 
-            newSession = false;
-            return new Session();
+            newSession = true;
+            return session;
         }
 
         protected abstract void run();
@@ -115,6 +123,31 @@ namespace Server
 
         public int Port { get; set; }
 
-        public abstract bool close();
+        public bool close()
+        {
+            try
+            {
+                running = false;
+                while (openSockets.Count > 0)
+                {
+                    openSockets[0].forceClose();
+                }
+                Listener.Stop();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        public void EndRequest(WebRequest request)
+        {
+            lock (openSockets)
+            {
+                openSockets.Remove(request);
+            }
+        }
     }
 }

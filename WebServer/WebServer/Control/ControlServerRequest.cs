@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Server.Control
 {
-    class ControlServerRequest : WebRequest<ControlServer>
+    class ControlServerRequest : WebRequest
     {
         public ControlServerRequest(Socket socket, ControlServer server)
             : base(socket, server)
@@ -76,7 +76,7 @@ namespace Server.Control
                 defaultPage = Uri.UnescapeDataString(defaultPage);
                 string[] defaultPageArray = defaultPage.Split(';');
 
-                ServerInstance.saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
+                ((ControlServer)ServerInstance).saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
             }
             else
             {
@@ -175,10 +175,10 @@ namespace Server.Control
         public override void sendFile(string path)
         {
             if (path == "/") { sendRedirect(ControlServer.LOGIN); }
-            else if (path == ControlServer.LOGIN) { sendHTMLString(ServerInstance.getLoginForm(), 200, "OK"); }
-            else if (path == ControlServer.USERMANAGER) { sendHTMLString(ServerInstance.getRegisterForm(), 200, "OK"); }
+            else if (path == ControlServer.LOGIN) { sendHTMLString(((ControlServer)ServerInstance).getLoginForm(), 200, "OK"); }
+            else if (path == ControlServer.USERMANAGER) { sendHTMLString(((ControlServer)ServerInstance).getRegisterForm(), 200, "OK"); }
             else if (path == ControlServer.LOG) { sendString(Logger.Logger.Instance.readFile(), 200, "OK LOG"); }
-            else if (path == ControlServer.ADMINFORM) { sendHTMLString(ServerInstance.getAdminForm(), 200, "OK"); }
+            else if (path == ControlServer.ADMINFORM) { sendHTMLString(((ControlServer)ServerInstance).getAdminForm(), 200, "OK"); }
             else { base.sendFile(path); }
         }
 

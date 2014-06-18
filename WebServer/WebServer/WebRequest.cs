@@ -7,25 +7,32 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Server.Logger;
+using Server.Control.SessionControl;
 
 namespace Server
 {
-    abstract class WebRequest<T> where T : Server
+    abstract class WebRequest
     {
 
         protected Socket Socket { get; set; }
 
         protected LogItem LogItem { get; set; }
 
-        protected T ServerInstance { get; set; }
+        protected Server ServerInstance { get; set; }
+
+        protected Session session { get; set; }
+        protected bool newSession;
 
         protected Dictionary<String, String> Headers { get; set; }
 
-        public WebRequest(Socket socket, T server)
+        private bool closed = false;
+
+        public WebRequest(Socket socket, Server server)
         {
             ServerInstance = server;
             Socket = socket;
             Headers = new Dictionary<string, string>();
+            session = ServerInstance.findSession(this, out newSession);
         }
 
         public void start()
@@ -41,6 +48,7 @@ namespace Server
 
                 //Remove \0 bytes
                 List<byte> received = new List<byte>(bReceive);
+
                 received.RemoveAll((byte b) => { return b == '\0'; });
 
 
@@ -183,20 +191,32 @@ namespace Server
 
         protected virtual string getFile(string path)
         {
-            if (path == "/" && !ServerInstance.DirBrowsing)
+            DirectoryInfo dInfo = new DirectoryInfo(ServerInstance.WebRoot + path);
+
+            if (dInfo.Exists && !ServerInstance.DirBrowsing)
             {
                 foreach (string defaultPage in ServerInstance.DefaultPages)
                 {
-                    FileInfo info = new FileInfo(ServerInstance.WebRoot + "/" + defaultPage);
+                    if (path[0] != '/')
+                    {
+                        path = "/" + path;
+                    }
+                    if (path[path.Length - 1] != '/')
+                    {
+                        path = path + "/";
+                    }
+
+                    FileInfo info = new FileInfo(ServerInstance.WebRoot + path + defaultPage);
                     if (info.Exists)
                     {
-                        path = "/" + defaultPage;
+                        path += defaultPage;
                         break;
                     }
                 }
             }
             return ServerInstance.WebRoot + path;
         }
+
         public void SendHeader(int iTotBytes, int statusCode, string statusMessage, string mimeType)
         {
             LogItem.responseCode = statusCode;
@@ -248,7 +268,11 @@ namespace Server
             catch { }
             finally
             {
-                Server.WebRequests.Release();
+                if (!closed)
+                {
+                    closed = true;
+                    Server.WebRequests.Release();
+                }
             }
 
         }

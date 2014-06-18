@@ -23,12 +23,10 @@ namespace Server.Control
         public static readonly bool CONTROLDIRECTORYBROWSING = false;
         private static readonly Semaphore settingsFile = new Semaphore(1, 1);
 
-        private static List<ControlServerRequest> openSockets;
 
         public ControlServer(int port)
             : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
         {
-            openSockets = new List<ControlServerRequest>(Server.MAXOPENSOCKETS);
         }
 
         protected override void run()
@@ -99,7 +97,7 @@ namespace Server.Control
             adminForm += "          <tr><td>Webroot:</td><td><input type=\"text\" name=\"webRoot\" value=" + Program.WebServerRoot + "></td></tr>\n";
             adminForm += "          <tr><td>Default page:</td><td><input type=\"text\" name=\"defaultPage\" value=" + Program.WebServerDefaultPages + "></td></tr>\n";
             adminForm += "          <tr><td>Directory browsing</td><td><input type=\"checkbox\" name=\"dirBrowsing\" " + browseDirectory + "></td></tr>\n";
-            adminForm += "          <tr><td><input type=\"submit\" name=\"log\" value=\"Show Log\"></td><td class=\"right\"><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>\n";
+            adminForm += "          <tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td><td class=\"right\"><input type=\"submit\" name=\"log\" value=\"Show Log\"></td></tr>\n";
             adminForm += "        </tbody>\n";
             adminForm += "      </table>\n";
             adminForm += "    </form>\n";
@@ -163,32 +161,6 @@ namespace Server.Control
             registerForm += "</html>";
 
             return registerForm;
-        }
-
-        public override bool close()
-        {
-            try
-            {
-                running = false;
-                while (openSockets.Count > 0)
-                {
-                    openSockets[0].forceClose();
-                }
-                Listener.Stop();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public void EndRequest(ControlServerRequest request)
-        {
-            lock (openSockets)
-            {
-                openSockets.Remove(request);
-            }
         }
     }
 }

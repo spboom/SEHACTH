@@ -129,6 +129,6 @@ namespace Server
         }
 
 
-        public static bool webServerDirectoryBrowsing { get; set; }
+        public static bool webServerDirectoryBrowsing { get { return webServer.DirBrowsing; } }
     }
 }
