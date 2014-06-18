@@ -122,7 +122,7 @@ namespace Server.Control
             loginForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
             loginForm += "              <input type=\"submit\" name=\"login\" value=\"login\"><br>";
             loginForm += "          </form>";
-            loginForm += "          <a href=\"/" + USERMANAGER + "\">Register user</a>";
+            loginForm += "          <a href=\"" + USERMANAGER + "\">Register user</a>";
             loginForm += "      </div>";
             loginForm += "  </body>";
             loginForm += "</html>";

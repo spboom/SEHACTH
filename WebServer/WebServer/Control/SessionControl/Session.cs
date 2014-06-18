@@ -21,7 +21,7 @@ namespace Server.Control.SessionControl
         }
 
         private DateTime timestamp = DateTime.Now;
-        public void ResetTIme() { timestamp = DateTime.Now; }
+        public void ResetTime() { timestamp = DateTime.Now; }
         public Boolean isTimedout { get { return DateTime.Now.Subtract(timestamp).TotalMinutes > 10; } }
     }
 }

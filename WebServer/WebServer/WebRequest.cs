@@ -154,6 +154,9 @@ namespace Server
             { }
         }
 
+        public String IP { get { return Socket.RemoteEndPoint.ToString().Split(':')[0]; } }
+
+
         protected void sendError(int statusCode, string statusMessage)
         {
             String completeMessage = statusCode + " " + statusMessage;

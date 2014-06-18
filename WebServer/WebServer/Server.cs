@@ -12,7 +12,7 @@ namespace Server
 {
     abstract class Server
     {
-        private Dictionary<String, Session> sessions;
+        private Dictionary<String, Session> sessions = new Dictionary<string,Session>();
         public static readonly int MAXOPENSOCKETS = 20;
         protected bool running;
 
@@ -47,11 +47,40 @@ namespace Server
         }
 
 
-        public Session FindSession(WebRequest request, out bool newSession) 
+        public Session FindSession<T>(WebRequest<T> request, out bool newSession) where T:Server
         {
             lock (sessions)
             {
-                //String id = request.
+                String id = request["Cookie"];
+                if (!String.IsNullOrEmpty(id) && id.Contains("SESSID"))
+                {
+                    String[] parts = id.Split(new String[1] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (String p in parts)
+                    {
+                        String[] sub = p.Split(new String[1] { "=" }, StringSplitOptions.RemoveEmptyEntries);
+                        if (sub.Length == 2 && sub[0].Trim() == "SESSID")
+                        {
+                            id = sub[1];
+                            break;
+                        }
+                    }
+
+                    //If id is legit and exists
+                    if (id.Length == 16 && sessions.ContainsKey(id))
+                    {
+                        //TODO: maybe log warning
+                        if (sessions[id].isTimedout || !sessions[id].IP.Equals(request.IP) || !sessions[id].UserAgent.Equals(request["User-Agent"]))
+                        {
+                            sessions.Remove(id);
+                        }
+                        else
+                        {
+                            sessions[id].ResetTime();
+                            newSession = false;
+                            return sessions[id];
+                        }
+                    }
+                }
             }
 
             newSession = false;
