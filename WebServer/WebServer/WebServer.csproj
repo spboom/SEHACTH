@@ -56,9 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Control\Authentication.cs" />
+    <Compile Include="Control\SessionControl\Authentication.cs" />
     <Compile Include="Control\ControlServer.cs" />
     <Compile Include="Control\ControlServerRequest.cs" />
+    <Compile Include="Control\SessionControl\Session.cs" />
     <Compile Include="DataBaseDataSet.cs">
       <DependentUpon>DataBaseDataSet.xsd</DependentUpon>
       <SubType>Component</SubType>

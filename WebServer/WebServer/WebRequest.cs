@@ -19,10 +19,13 @@ namespace Server
 
         protected T ServerInstance { get; set; }
 
+        protected Dictionary<String, String> Headers { get; set; }
+
         public WebRequest(Socket socket, T server)
         {
             ServerInstance = server;
             Socket = socket;
+            Headers = new Dictionary<string, string>();
         }
 
         public void start()
@@ -47,7 +50,15 @@ namespace Server
                 string[] sBufferArray = sBuffer.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
                 string[] request = sBufferArray[0].Split(' ');
-
+                
+                for (int j = 1; j < sBufferArray.Length; j++ )
+                {
+                    if (!(request[0] == "POST" && sBufferArray.Length - 1 == j))
+                    {
+                        string[] parts = sBufferArray[j].Split(new string[] { ": " }, 2, StringSplitOptions.None);
+                        Headers.Add(parts[0], parts[1]);
+                    }
+                }
                 LogItem.Url = Socket.LocalEndPoint + request[1];
 
                 switch (request[0])
@@ -208,6 +219,12 @@ namespace Server
 
             return mimeType;
         }
+
+        public String this[String index]
+        {
+            get { return Headers.ContainsKey(index) ? Headers[index] : ""; }
+        }
+
         public virtual void close()
         {
             try

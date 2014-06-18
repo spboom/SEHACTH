@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Server.Control.SessionControl;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Server
 {
     abstract class Server
     {
-
+        private Dictionary<String, Session> sessions;
         public static readonly int MAXOPENSOCKETS = 20;
         protected bool running;
 
@@ -43,6 +44,18 @@ namespace Server
             {
                 webRequests = value;
             }
+        }
+
+
+        public Session FindSession(WebRequest request, out bool newSession) 
+        {
+            lock (sessions)
+            {
+                //String id = request.
+            }
+
+            newSession = false;
+            return new Session();
         }
 
         protected abstract void run();

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server.Control
+namespace Server.Control.SessionControl
 {
     class Authentication
     {
@@ -17,7 +17,7 @@ namespace Server.Control
             SqlCommand comm = new SqlCommand(sql, conn);
 
             // Generate salt value
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*";
             var random = new Random();
             var result = new string(
                 Enumerable.Repeat(chars, 20)
