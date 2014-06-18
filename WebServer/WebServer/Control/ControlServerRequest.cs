@@ -21,8 +21,8 @@ namespace Server.Control
                 string path = sBufferArray[0].Split(' ')[1];
 
                 if (path == "/") { postAdminForm(sBufferArray); }
-                else if (path == "/login") { postLoginForm(sBufferArray); }
-                else if (path == "/register") { postRegisterForm(sBufferArray); }
+                else if (path == ServerInstance.getLOGIN) { postLoginForm(sBufferArray); }
+                else if (path == ServerInstance.getUSERMANAGER) { postRegisterForm(sBufferArray); }
             }
             catch (Exception)
             {
@@ -82,11 +82,11 @@ namespace Server.Control
                 // example: web.Session["username"] = web.Post("username");
                 //socket.Session...
 
-                sendRedirect("/");
+                sendRedirect(ServerInstance.getADMINFORM);
             }
             else
             {
-                sendRedirect("/login");
+                sendRedirect(ServerInstance.getLOGIN);
             }
         }
 
@@ -104,11 +104,11 @@ namespace Server.Control
                 {
                     Console.WriteLine("User " + username + " created");
                 }
-                sendRedirect("/register");
+                sendRedirect(ServerInstance.getUSERMANAGER);
             }
             else
             {
-                sendRedirect("/register");
+                sendRedirect(ServerInstance.getUSERMANAGER);
             }
         }
 
@@ -121,12 +121,12 @@ namespace Server.Control
         public override void sendFile(string path)
         {
             if (path == "/") { sendString(ServerInstance.getAdminForm(), 200, "OK"); }
-            else if (path == "/login") { sendString(ServerInstance.getLoginForm(), 200, "OK"); }
-            else if (path == "/register") { sendString(ServerInstance.getRegisterForm(), 200, "OK"); }
-            else if (path.Contains("/register/remove/")) { 
+            else if (path == ServerInstance.getLOGIN) { sendString(ServerInstance.getLoginForm(), 200, "OK"); }
+            else if (path == ServerInstance.getUSERMANAGER) { sendString(ServerInstance.getRegisterForm(), 200, "OK"); }
+            else if (path.Contains(ServerInstance.getUSERMANAGER + "/remove/")) { 
                 string user = path.Split('/')[3];
                 if (user != "") { Authentication.removeUser(user); }
-                sendRedirect("/register");
+                sendRedirect(ServerInstance.getUSERMANAGER);
             }
             else { base.sendFile(path); }
         }
@@ -135,6 +135,15 @@ namespace Server.Control
         {
             base.close();
             ServerInstance.EndRequest(this);
+        }
+
+        protected override string getFile(string path)
+        {
+            if(path == "/")
+            {
+                return ServerInstance.DefaultPages[0];
+            }
+            return base.getFile(path);
         }
 
     }

@@ -13,14 +13,17 @@ namespace Server.Control
 {
     class ControlServer : Server
     {
-        static readonly string CONTROLROOT = @"./Control";
-        static readonly string[] CONTROLDEFAULTPAGES = new string[] { "adminForm.html" };
-        static readonly bool CONTROLDIRECTORYBROWSING = false;
-        static readonly Semaphore settingsFile = new Semaphore(1, 1);
+        private static readonly string CONTROLROOT = @"./Control";
+        private static readonly string ADMINFORM = @"/settings";
+        private static readonly string LOGIN = @"/login";
+        private static readonly string USERMANAGER = @"/usermanager";
+        private static string[] CONTROLDEFAULTPAGES = new string[] { LOGIN };
+        public static readonly bool CONTROLDIRECTORYBROWSING = false;
+        private static readonly Semaphore settingsFile = new Semaphore(1, 1);
 
         private static List<ControlServerRequest> openSockets;
 
-        public ControlServer(int port) 
+        public ControlServer(int port)
             : base(port, CONTROLROOT, CONTROLDEFAULTPAGES, CONTROLDIRECTORYBROWSING)
         {
             openSockets = new List<ControlServerRequest>(Server.MAXOPENSOCKETS);
@@ -117,7 +120,7 @@ namespace Server.Control
             loginForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
             loginForm += "              <input type=\"submit\" name=\"login\" value=\"login\"><br>";
             loginForm += "          </form>";
-            loginForm += "          <a href=\"/register\">Register user</a>";
+            loginForm += "          <a href=\"/" + USERMANAGER + "\">Register user</a>";
             loginForm += "      </div>";
             loginForm += "  </body>";
             loginForm += "</html>";
@@ -132,7 +135,7 @@ namespace Server.Control
             string registerForm = "";
 
             registerForm += "<html>";
-            registerForm += "  <head><title>Register</title></head>";
+            registerForm += "  <head><title>User Manager</title></head>";
             registerForm += "  <body>";
             registerForm += "      <div>";
             registerForm += "          <h1>Register</h1>";
@@ -146,7 +149,7 @@ namespace Server.Control
             registerForm += "          <div>";
             foreach (String user in users)
             {
-                registerForm += "          " + user + " <a href=\"/register/remove/"+ user +"\">x</a><br>";
+                registerForm += "          " + user + " <a href=\"" + USERMANAGER + "/remove/" + user + "\">x</a><br>";
             }
             registerForm += "          </div>";
 
@@ -178,6 +181,29 @@ namespace Server.Control
         public void EndRequest(ControlServerRequest request)
         {
             openSockets.Remove(request);
+        }
+
+        public string[] getCONTROLDEFAULTPAGES
+        {
+            get { return ControlServer.CONTROLDEFAULTPAGES; }
+            set { ControlServer.CONTROLDEFAULTPAGES = value; }
+        }
+        public string getCONTROLROOT
+        {
+            get { return ControlServer.CONTROLROOT; }
+        }
+        public string getADMINFORM
+        {
+            get { return ControlServer.ADMINFORM; }
+        }
+        public string getLOGIN
+        {
+            get { return ControlServer.LOGIN; }
+        }
+
+        public string getUSERMANAGER
+        {
+            get { return ControlServer.USERMANAGER; }
         }
     }
 }
