@@ -151,7 +151,6 @@
     </Content>
     <Content Include="DataBase_log.ldf">
       <DependentUpon>DataBase.mdf</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Web\Site\images\ad%28468x60%29banner.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
