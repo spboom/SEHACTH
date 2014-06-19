@@ -6,11 +6,12 @@
 }
 
 namespace Server.DataBaseDataSetTableAdapters {
-    
-    
-    public partial class RoleTableAdapter {
+
+
+    public partial class RolesTableAdapter
+    {
     }
-    public partial class UserTableAdapter
+    public partial class UsersTableAdapter
     {
     }
 
