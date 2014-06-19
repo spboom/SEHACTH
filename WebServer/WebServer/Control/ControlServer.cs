@@ -19,6 +19,7 @@ namespace Server.Control
         public static readonly string LOGIN = @"/login";
         public static readonly string LOG = @"/log";
         public static readonly string USERMANAGER = @"/usermanager";
+        public static readonly string FAVICON = @"/favicon.ico";
         public static string[] CONTROLDEFAULTPAGES = new string[] { LOGIN };
         public static readonly bool CONTROLDIRECTORYBROWSING = false;
         private static readonly Semaphore settingsFile = new Semaphore(1, 1);

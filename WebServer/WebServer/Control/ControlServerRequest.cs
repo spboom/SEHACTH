@@ -207,7 +207,14 @@ namespace Server.Control
             {
                 sendHTMLString(((ControlServer)ServerInstance).getAdminForm(), 200, "OK");
             }
-            else { sendRedirect(ControlServer.LOGIN); }
+            else if (path == ControlServer.FAVICON)
+            {
+                base.sendFile(path);
+            }
+            else
+            {
+                sendRedirect(ControlServer.LOGIN);
+            }
         }
 
         private bool checkRights(string[] lvls)
