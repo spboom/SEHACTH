@@ -97,7 +97,8 @@ namespace Server.Control
             adminForm += "          <tr><td>Webroot:</td><td><input type=\"text\" name=\"webRoot\" value=" + Program.WebServerRoot + "></td></tr>\n";
             adminForm += "          <tr><td>Default page:</td><td><input type=\"text\" name=\"defaultPage\" value=" + Program.WebServerDefaultPages + "></td></tr>\n";
             adminForm += "          <tr><td>Directory browsing</td><td><input type=\"checkbox\" name=\"dirBrowsing\" " + browseDirectory + "></td></tr>\n";
-            adminForm += "          <tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td><td class=\"right\"><input type=\"submit\" name=\"log\" value=\"Show Log\"></td></tr>\n";
+            adminForm += "          <tr><td></td><td class=\"right\"><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>\n";
+            adminForm += "          <tr><td><a href=\""+LOG+"\">Show Log</a></td><td><a href=\"" + USERMANAGER + "\">Manage users</a></td></tr>\n";
             adminForm += "        </tbody>\n";
             adminForm += "      </table>\n";
             adminForm += "    </form>\n";
@@ -120,7 +121,6 @@ namespace Server.Control
             loginForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>";
             loginForm += "              <input type=\"submit\" name=\"login\" value=\"login\"><br>";
             loginForm += "          </form>";
-            loginForm += "          <a href=\"" + USERMANAGER + "\">Add users</a>";
             loginForm += "      </div>";
             loginForm += "  </body>";
             loginForm += "</html>";
@@ -138,7 +138,7 @@ namespace Server.Control
             registerForm += "  <head><title>User Manager</title></head>";
             registerForm += "  <body>";
             registerForm += "      <div>";
-            registerForm += "          <h1>Add users</h1>";
+            registerForm += "          <h1>Manage users</h1>";
             registerForm += "          <form  method=\"post\">";
             registerForm += "              <input type=\"text\" name=\"username\" placeholder=\"Username\">";
             registerForm += "              <input type=\"password\" name=\"password\" placeholder=\"Password\">";

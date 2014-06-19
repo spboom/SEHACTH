@@ -86,15 +86,16 @@ namespace Server
                         }
                     }
                 }
-            }
-            Session session = new Session();
-            do { session.ID = Authentication.randomString(16); } while (sessions.ContainsKey(session.ID));
-            session.IP = request.IP;
-            session.UserAgent = request["User-Agent"];
-            sessions.Add(session.ID, session);
 
-            newSession = true;
-            return session;
+                Session session = new Session();
+                do { session.ID = Authentication.randomString(16); } while (sessions.ContainsKey(session.ID));
+                session.IP = request.IP;
+                session.UserAgent = request["User-Agent"];
+                sessions.Add(session.ID, session);
+
+                newSession = true;
+                return session;
+            }
         }
 
         protected abstract void run();
@@ -147,6 +148,14 @@ namespace Server
             lock (openSockets)
             {
                 openSockets.Remove(request);
+            }
+        }
+
+        public void removeSession(Session session)
+        {
+            lock (sessions)
+            {
+                sessions.Remove(session.ID);
             }
         }
     }

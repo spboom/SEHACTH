@@ -20,7 +20,7 @@ namespace Server
 
         protected Server ServerInstance { get; set; }
 
-        protected Session session { get; set; }
+        protected Session Session { get; set; }
         protected bool newSession;
 
         protected Dictionary<String, String> Headers { get; set; }
@@ -32,7 +32,6 @@ namespace Server
             ServerInstance = server;
             Socket = socket;
             Headers = new Dictionary<string, string>();
-            session = ServerInstance.findSession(this, out newSession);
         }
 
         public void start()
@@ -68,6 +67,9 @@ namespace Server
                     }
                 }
                 LogItem.Url = Socket.LocalEndPoint + request[1];
+
+                Session = ServerInstance.findSession(this, out newSession);
+
 
                 switch (request[0])
                 {
@@ -228,11 +230,15 @@ namespace Server
                 mimeType = "text/html";
             }
 
-            sBuffer = sBuffer + "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n";
-            sBuffer = sBuffer + "Server: My Little Server\r\n";
-            sBuffer = sBuffer + "Content-Type: " + mimeType + "\r\n";
-            sBuffer = sBuffer + "Accept-Ranges: bytes\r\n";
-            sBuffer = sBuffer + "Content-Length: " + iTotBytes + "\r\n\r\n";
+            sBuffer += "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n";
+            if (newSession)
+            {
+                sBuffer += "Set-Cookie: SESSID=" + Session.ID + "\r\n";
+            }
+            sBuffer += "Server: My Little Server\r\n";
+            sBuffer += "Content-Type: " + mimeType + "\r\n";
+            sBuffer += "Accept-Ranges: bytes\r\n";
+            sBuffer += "Content-Length: " + iTotBytes + "\r\n\r\n";
             Byte[] bSendData = Encoding.ASCII.GetBytes(sBuffer);
             Socket.Send(Encoding.ASCII.GetBytes(sBuffer), Encoding.ASCII.GetBytes(sBuffer).Length, SocketFlags.None);
         }

@@ -66,33 +66,9 @@ namespace Server
             Logger.Logger logger = Logger.Logger.Instance;
             Console.WriteLine("Logger started...");
 
-            //dbTest();
-
             Console.Read();
         }
 
-        //private static void dbTest()
-        //{
-        //    /////////////////////
-
-        //    // Generate username for test. Usernames must be unique.
-        //    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        //    var random = new Random();
-        //    var user = new string(
-        //        Enumerable.Repeat(chars, 8)
-        //                  .Select(s => s[random.Next(s.Length)])
-        //                  .ToArray());
-
-        //    // Add new user
-        //    Console.WriteLine("\nUser added: " + user);
-        //    newUser(user, "p@$$w0rd");
-
-        //    // Check if user exists
-        //    Console.WriteLine("User exists: " + verifyUser(user, "p@$$w0rd"));
-        //    Console.WriteLine("User doesn't exist: " + verifyUser(user, "abc"));
-
-        //    /////////////////////
-        //}
 
 
 

@@ -17,7 +17,7 @@ namespace Server.Control.SessionControl
         public String this[String index]
         {
             get { return data.ContainsKey(index) ? data[index] : ""; }
-            set { if (data.ContainsKey(index)) { data.Remove(index); data.Add(index, value); } }
+            set { if (data.ContainsKey(index)) { data.Remove(index);} data.Add(index, value); }
         }
 
         private DateTime timestamp = DateTime.Now;

@@ -21,9 +21,18 @@ namespace Server.Control
             {
                 string path = sBufferArray[0].Split(' ')[1];
 
-                if (path == ControlServer.ADMINFORM) { postAdminForm(sBufferArray); }
-                else if (path == ControlServer.LOGIN) { postLoginForm(sBufferArray); }
-                else if (path == ControlServer.USERMANAGER) { postRegisterForm(sBufferArray); }
+                if (path == ControlServer.ADMINFORM)
+                {
+                    postAdminForm(sBufferArray);
+                }
+                else if (path == ControlServer.LOGIN)
+                {
+                    postLoginForm(sBufferArray);
+                }
+                else if (path == ControlServer.USERMANAGER)
+                {
+                    postRegisterForm(sBufferArray);
+                }
             }
             catch (Exception)
             {
@@ -34,64 +43,78 @@ namespace Server.Control
 
         private void postAdminForm(string[] sBufferArray)
         {
-            int webPort = -1, controlPort = -1;
-            string webRoot = null, defaultPage = null;
-            bool dirBrowsing = false, post = true;
-            string[] valueString = sBufferArray[sBufferArray.Length - 1].Split('&');
-            string[][] values = new string[valueString.Length][];
-            for (int i = 0; i < valueString.Length; i++)
+            if (checkRights(new string[] { "1" }))
             {
-                values[i] = valueString[i].Split('=');
-                switch (values[i][0])
+                int webPort = -1, controlPort = -1;
+                string webRoot = null, defaultPage = null;
+                bool dirBrowsing = false, post = true;
+                string[] valueString = sBufferArray[sBufferArray.Length - 1].Split('&');
+                string[][] values = new string[valueString.Length][];
+                for (int i = 0; i < valueString.Length; i++)
                 {
-                    case "webPort":
-                        webPort = int.Parse(values[i][1]);
-                        break;
-                    case "controlPort":
-                        controlPort = int.Parse(values[i][1]);
-                        break;
-                    case "webRoot":
-                        webRoot = values[i][1];
-                        break;
-                    case "defaultPage":
-                        defaultPage = values[i][1];
-                        break;
-                    case "dirBrowsing":
-                        dirBrowsing = values[i][1] == "on";
-                        break;
-                    case "submit":
-                        post = true;
-                        break;
-                    case "log":
-                        post = false;
-                        break;
-                    default:
-                        break;
+                    values[i] = valueString[i].Split('=');
+                    switch (values[i][0])
+                    {
+                        case "webPort":
+                            webPort = int.Parse(values[i][1]);
+                            break;
+                        case "controlPort":
+                            controlPort = int.Parse(values[i][1]);
+                            break;
+                        case "webRoot":
+                            webRoot = values[i][1];
+                            break;
+                        case "defaultPage":
+                            defaultPage = values[i][1];
+                            break;
+                        case "dirBrowsing":
+                            dirBrowsing = values[i][1] == "on";
+                            break;
+                        case "submit":
+                            post = true;
+                            break;
+                        case "log":
+                            post = false;
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
 
-            if (post)
-            {
-                webRoot = Uri.UnescapeDataString(webRoot);
-                defaultPage = Uri.UnescapeDataString(defaultPage);
-                string[] defaultPageArray = defaultPage.Split(';');
+                if (post)
+                {
+                    webRoot = Uri.UnescapeDataString(webRoot);
+                    defaultPage = Uri.UnescapeDataString(defaultPage);
+                    string[] defaultPageArray = defaultPage.Split(';');
 
-                ((ControlServer)ServerInstance).saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
+                    ((ControlServer)ServerInstance).saveSettings(webPort, controlPort, webRoot, defaultPageArray, dirBrowsing);
+                }
+                else
+                {
+                    sendRedirect(ControlServer.LOG);
+                }
             }
             else
             {
-                sendRedirect(ControlServer.LOG);
+                sendError(401, "Not permitted");
             }
         }
 
         private void postLoginForm(string[] sBufferArray)
         {
-            string[] formData = sBufferArray[12].Split('&');
+            if (!newSession)
+            {
+                ServerInstance.removeSession(Session);
+                Session = ServerInstance.findSession(this, out newSession);
+            }
+            string[] formData = sBufferArray[sBufferArray.Length - 1].Split('&');
             string username = formData[0].Split('=')[1];
             string password = formData[1].Split('=')[1];
-
-            if (Authentication.verifyUser(username, password))
+            int lvl = -1;
+            if (Authentication.verifyUser(username, password, out lvl))
             {
+                Session["username"] = username;
+                Session["adminlvl"] = lvl.ToString();
                 sendRedirect(ControlServer.ADMINFORM);
             }
             else
@@ -102,84 +125,101 @@ namespace Server.Control
 
         private void postRegisterForm(string[] sBufferArray)
         {
-
-            //"James=on&Sjors=on&remove=Verwijder"
-            // split on &
-            // foreach split on =
-            // if [split.length][1] == Verwijder
-            // if [1] == on
-
-            string[] data = sBufferArray[sBufferArray.Length - 1].Split('&');
-            string[][] values = new string[data.Length][];
-            bool add = false, remove = false;
-            for (int i = 0; i < data.Length; i++)
+            if (checkRights(new string[] { "1" }))
             {
-                values[i] = data[i].Split('=');
-                if (values[i][0] == "remove")
+                string[] data = sBufferArray[sBufferArray.Length - 1].Split('&');
+                string[][] values = new string[data.Length][];
+                bool add = false, remove = false;
+                for (int i = 0; i < data.Length; i++)
                 {
-                    remove = true;
-                }
-                else if (values[i][0] == "add")
-                {
-                    add = true;
-                }
-            }
-            if (add && remove)
-            {
-                sendError(400, "Bad Data");
-            }
-            else if (add)
-            {
-                string[] formData = sBufferArray[12].Split('&');
-                string username = formData[0].Split('=')[1];
-                string password = formData[1].Split('=')[1];
-                string confirmPassword = formData[2].Split('=')[1];
-
-                if (password == confirmPassword && password != "" && confirmPassword != "" && username != "")
-                {
-                    // if not true: bad data? (exception)
-                    if (Authentication.newUser(username, password))
+                    values[i] = data[i].Split('=');
+                    if (values[i][0] == "remove")
                     {
-                        Console.WriteLine("User " + username + " created");
+                        remove = true;
                     }
-                    else { sendError(500, "Failed to create user"); }
-
-                    sendRedirect(ControlServer.USERMANAGER);
+                    else if (values[i][0] == "add")
+                    {
+                        add = true;
+                    }
                 }
-                else
+                if (add && remove)
                 {
                     sendError(400, "Bad Data");
                 }
-            }
-            else if (remove)
-            {
-                int max = values.GetUpperBound(0);
-                for (int i = 0; i < max; i++)
+                else if (add)
                 {
-                    if (values[i][0] != "admin" && values[i][1] == "on")
+                    string username = data[0].Split('=')[1];
+                    string password = data[1].Split('=')[1];
+                    string confirmPassword = data[2].Split('=')[1];
+
+                    if (password == confirmPassword && password != "" && confirmPassword != "" && username != "")
                     {
-                        Authentication.removeUser(values[i][0]);
+                        // if not true: bad data? (exception)
+                        if (Authentication.newUser(username, password))
+                        {
+                            Console.WriteLine("User " + username + " created");
+                        }
+                        else { sendError(500, "Failed to create user"); }
+
+                        sendRedirect(ControlServer.USERMANAGER);
                     }
-
-
+                    else
+                    {
+                        sendError(400, "Bad Data");
+                    }
                 }
-                sendRedirect(ControlServer.USERMANAGER);
-            }
-        }
+                else if (remove)
+                {
+                    int max = values.GetUpperBound(0);
+                    for (int i = 0; i < max; i++)
+                    {
+                        if (values[i][0] != "admin" && values[i][1] == "on")
+                        {
+                            Authentication.removeUser(values[i][0]);
+                        }
 
-        protected override void GET(string[] sBufferArray)
-        {
-            base.GET(sBufferArray);
+
+                    }
+                    sendRedirect(ControlServer.USERMANAGER);
+                }
+            }
+            else
+            {
+                sendError(401, "Not permitted");
+            }
         }
 
         public override void sendFile(string path)
         {
-            if (path == "/") { sendRedirect(ControlServer.LOGIN); }
-            else if (path == ControlServer.LOGIN) { sendHTMLString(((ControlServer)ServerInstance).getLoginForm(), 200, "OK"); }
-            else if (path == ControlServer.USERMANAGER) { sendHTMLString(((ControlServer)ServerInstance).getRegisterForm(), 200, "OK"); }
-            else if (path == ControlServer.LOG) { sendString(Logger.Logger.Instance.readFile(), 200, "OK LOG"); }
-            else if (path == ControlServer.ADMINFORM) { sendHTMLString(((ControlServer)ServerInstance).getAdminForm(), 200, "OK"); }
-            else { base.sendFile(path); }
+            if (path == ControlServer.LOGIN)
+            {
+                sendHTMLString(((ControlServer)ServerInstance).getLoginForm(), 200, "OK");
+            }
+            else if (path == ControlServer.USERMANAGER && checkRights(new string[] { "1", "2" }))
+            {
+                sendHTMLString(((ControlServer)ServerInstance).getRegisterForm(), 200, "OK");
+            }
+            else if (path == ControlServer.LOG && checkRights(new string[] { "1", "2" }))
+            {
+                sendString(Logger.Logger.Instance.readFile(), 200, "OK LOG");
+            }
+            else if (path == ControlServer.ADMINFORM && checkRights(new string[] { "1", "2" }))
+            {
+                sendHTMLString(((ControlServer)ServerInstance).getAdminForm(), 200, "OK");
+            }
+            else { sendRedirect(ControlServer.LOGIN); }
+        }
+
+        private bool checkRights(string[] lvls)
+        {
+            foreach (string lvl in lvls)
+            {
+                if (Session["adminlvl"] == lvl)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override void close()

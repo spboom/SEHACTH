@@ -2,7 +2,7 @@
 <Settings>
   <WebServer port="8080" />
   <ControlServer port="8081" />
-  <WebRoot path="" />
+  <WebRoot path="./Web/Site" />
   <DefaultPage>
     <File name="index.html" />
     <File name="index.htm" />

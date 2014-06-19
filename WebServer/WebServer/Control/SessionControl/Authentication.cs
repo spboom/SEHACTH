@@ -40,8 +40,8 @@ namespace Server.Control.SessionControl
             {
                 conn.Close();
             }
-
-            return verifyUser(username, password) ? true : false;
+            int lvl;
+            return verifyUser(username, password, out lvl) ? true : false;
         }
 
         public static string randomString(int length)
@@ -51,7 +51,7 @@ namespace Server.Control.SessionControl
                 length = 20;
             }
             // Generate salt value
-            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*";
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
             Random random = new Random();
             string result = new string(
                 Enumerable.Repeat(chars, length)
@@ -61,14 +61,15 @@ namespace Server.Control.SessionControl
             return result;
         }
 
-        public static Boolean verifyUser(String username, String password)
+        public static Boolean verifyUser(String username, String password, out int lvl)
         {
+            lvl = -1;
             SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\v11.0;AttachDbFilename=|DataDirectory|\DataBase.mdf;Integrated Security=True");
             SqlCommand command = new SqlCommand();
             SqlDataReader reader;
 
             command.Connection = connection;
-            command.CommandText = "SELECT Password, Salt FROM [Users] WHERE UserName = @username";
+            command.CommandText = "SELECT Password, Salt, Role_id FROM [Users] WHERE UserName = @username";
             command.Parameters.AddWithValue("@username", username);
 
             connection.Open();
@@ -81,8 +82,14 @@ namespace Server.Control.SessionControl
             {
                 dbPassword = reader["Password"].ToString();
                 dbSalt = reader["Salt"].ToString();
-            }
+                if (!int.TryParse(reader["Role_id"].ToString(), out lvl))
+                {
+                    reader.Close();
+                    connection.Close();
 
+                    return false;
+                }
+            }
             reader.Close();
             connection.Close();
 
